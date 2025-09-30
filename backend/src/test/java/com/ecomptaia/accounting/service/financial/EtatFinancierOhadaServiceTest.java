@@ -21,6 +21,8 @@ class EtatFinancierOhadaServiceTest {
     private BilanServiceImpl bilanService;
     @Mock
     private CompteResultatServiceImpl compteResultatService;
+    @Mock
+    private com.ecomptaia.accounting.service.financial.NoteAnnexeService noteAnnexeService;
     @InjectMocks
     private EtatFinancierOhadaService etatFinancierOhadaService;
 
@@ -54,6 +56,7 @@ class EtatFinancierOhadaServiceTest {
         resultat.setResultatNet(100.0);
         when(bilanService.genererBilan(any(), any())).thenReturn(bilan);
         when(compteResultatService.genererCompteResultat(any(), any())).thenReturn(resultat);
+        when(noteAnnexeService.genererNotesAnnexes()).thenReturn(java.util.Collections.emptyList());
         EtatFinancierOhada etat = etatFinancierOhadaService.genererEtatsPourEntreprise(entrepriseNormal, "2025");
         assertEquals(1000.0, etat.getBilan().getTotalActif());
         assertEquals(1000.0, etat.getBilan().getTotalPassif());
@@ -64,8 +67,9 @@ class EtatFinancierOhadaServiceTest {
 
     @Test
     void testGenererEtatsMinimal() {
-        EtatFinancierOhada etat = etatFinancierOhadaService.genererEtatsPourEntreprise(entrepriseMinimal, "2025");
-        assertNotNull(etat.getTableauTresorerie());
-        assertEquals("2025", etat.getTableauTresorerie().getExercice());
+    when(noteAnnexeService.genererNotesAnnexes()).thenReturn(java.util.Collections.emptyList());
+    EtatFinancierOhada etat = etatFinancierOhadaService.genererEtatsPourEntreprise(entrepriseMinimal, "2025");
+    assertNotNull(etat.getTableauTresorerie());
+    assertEquals("2025", etat.getTableauTresorerie().getExercice());
     }
 }

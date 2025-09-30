@@ -4,3 +4,12 @@ CREATE TABLE IF NOT EXISTS systemes_comptables (
     libelle VARCHAR(255) NOT NULL,
     description VARCHAR(1000)
 );
+
+CREATE TABLE IF NOT EXISTS comptes_comptables (
+    id UUID PRIMARY KEY,
+    numero VARCHAR(20) NOT NULL,
+    libelle VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    nature VARCHAR(50) NOT NULL,
+    actif BOOLEAN NOT NULL
+);
