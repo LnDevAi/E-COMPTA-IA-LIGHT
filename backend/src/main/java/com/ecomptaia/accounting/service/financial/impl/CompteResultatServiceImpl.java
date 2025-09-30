@@ -24,6 +24,7 @@ public class CompteResultatServiceImpl implements CompteResultatService {
                 for (com.ecomptaia.accounting.entity.LigneEcriture ligne : ecriture.getLignes()) {
                     com.ecomptaia.accounting.entity.CompteComptable.TypeCompte type = ligne.getCompte().getType();
                     String intitule = ligne.getCompte().getLibelle();
+                    String numero = ligne.getCompte().getNumero();
                     double montantCredit = ligne.getMontantCredit().doubleValue();
                     double montantDebit = ligne.getMontantDebit().doubleValue();
                     if (type == com.ecomptaia.accounting.entity.CompteComptable.TypeCompte.PRODUIT) {

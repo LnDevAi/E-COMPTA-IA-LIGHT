@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS systemes_comptables (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    libelle VARCHAR(255) NOT NULL,
+    description VARCHAR(1000)
+);

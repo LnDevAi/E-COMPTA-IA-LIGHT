@@ -33,6 +33,10 @@ public class EcritureComptable {
     @ManyToOne
     @JoinColumn(name = "journal_id")
     private Journal journal;
+
+    @ManyToOne
+    @JoinColumn(name = "compte_id")
+    private CompteComptable compte;
     
     @OneToMany(mappedBy = "ecriture", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LigneEcriture> lignes = new ArrayList<>();

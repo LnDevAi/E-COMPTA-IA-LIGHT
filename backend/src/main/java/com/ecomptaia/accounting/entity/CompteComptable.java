@@ -35,6 +35,10 @@ public class CompteComptable {
     @Column(nullable = false)
     private Boolean actif = true;
     
+        @ManyToOne
+        @JoinColumn(name = "systeme_comptable_id", nullable = false)
+        private SystemeComptable systemeComptable;
+    
     public enum TypeCompte {
         ACTIF, PASSIF, CHARGE, PRODUIT
     }

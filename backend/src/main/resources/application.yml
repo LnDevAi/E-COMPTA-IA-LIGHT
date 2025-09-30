@@ -18,6 +18,17 @@ spring:
       ddl-auto: create-drop
     show-sql: true
 
+# Exemple : charger le plan OHADA par défaut
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-plan-ohada.sql
+
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
 server:
   port: 8080
 
