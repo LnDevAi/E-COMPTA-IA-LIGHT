@@ -51,7 +51,7 @@ class EtatFinancierOhadaServiceNotesTest {
         NoteAnnexe note = new NoteAnnexe();
         note.setTitre("Méthodes comptables");
         note.setContenu("Contenu réglementaire");
-        when(noteAnnexeService.genererNotesAnnexes()).thenReturn(Collections.singletonList(note));
+        when(noteAnnexeService.genererNotesAnnexes("NORMAL")).thenReturn(Collections.singletonList(note));
         EtatFinancierOhada etat = etatFinancierOhadaService.genererEtatsPourEntreprise(entrepriseNormal, "2025");
         assertNotNull(etat.getNoteAnnexe());
         assertEquals("Méthodes comptables", etat.getNoteAnnexe().getTitre());
@@ -62,7 +62,7 @@ class EtatFinancierOhadaServiceNotesTest {
         NoteAnnexe note = new NoteAnnexe();
         note.setTitre("Informations diverses");
         note.setContenu("Contenu simplifié");
-        when(noteAnnexeService.genererNotesAnnexes()).thenReturn(Collections.singletonList(note));
+        when(noteAnnexeService.genererNotesAnnexes("MINIMAL")).thenReturn(Collections.singletonList(note));
         EtatFinancierOhada etat = etatFinancierOhadaService.genererEtatsPourEntreprise(entrepriseMinimal, "2025");
         assertNotNull(etat.getNoteAnnexe());
         assertEquals("Informations diverses", etat.getNoteAnnexe().getTitre());

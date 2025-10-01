@@ -56,7 +56,7 @@ class EtatFinancierOhadaServiceTest {
         resultat.setResultatNet(100.0);
         when(bilanService.genererBilan(any(), any())).thenReturn(bilan);
         when(compteResultatService.genererCompteResultat(any(), any())).thenReturn(resultat);
-        when(noteAnnexeService.genererNotesAnnexes()).thenReturn(java.util.Collections.emptyList());
+        when(noteAnnexeService.genererNotesAnnexes("NORMAL")).thenReturn(java.util.Collections.emptyList());
         EtatFinancierOhada etat = etatFinancierOhadaService.genererEtatsPourEntreprise(entrepriseNormal, "2025");
         assertEquals(1000.0, etat.getBilan().getTotalActif());
         assertEquals(1000.0, etat.getBilan().getTotalPassif());
@@ -67,7 +67,7 @@ class EtatFinancierOhadaServiceTest {
 
     @Test
     void testGenererEtatsMinimal() {
-    when(noteAnnexeService.genererNotesAnnexes()).thenReturn(java.util.Collections.emptyList());
+    when(noteAnnexeService.genererNotesAnnexes("MINIMAL")).thenReturn(java.util.Collections.emptyList());
     EtatFinancierOhada etat = etatFinancierOhadaService.genererEtatsPourEntreprise(entrepriseMinimal, "2025");
     assertNotNull(etat.getTableauTresorerie());
     assertEquals("2025", etat.getTableauTresorerie().getExercice());

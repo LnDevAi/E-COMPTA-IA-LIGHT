@@ -25,8 +25,8 @@ public class NoteAnnexeControllerTest {
 
     @Test
     void testGetNotesAnnexes() throws Exception {
-        when(noteAnnexeService.genererNotesAnnexes()).thenReturn(Collections.emptyList());
-        mockMvc.perform(get("/api/financial/notes-annexes"))
+        when(noteAnnexeService.genererNotesAnnexes("NORMAL")).thenReturn(Collections.emptyList());
+        mockMvc.perform(get("/api/financial/notes-annexes?systeme=NORMAL"))
                 .andExpect(status().isOk());
     }
 }

@@ -39,7 +39,7 @@ public class EtatFinancierOhadaService {
                 etat.setCompteResultat(compteResultat);
 
                     // Générer les notes annexes réglementaires
-                    java.util.List<NoteAnnexe> notes = noteAnnexeService.genererNotesAnnexes();
+                    java.util.List<NoteAnnexe> notes = noteAnnexeService.genererNotesAnnexes("NORMAL");
                     if (!notes.isEmpty()) {
                         etat.setNoteAnnexe(notes.get(0)); // On peut enrichir pour stocker la liste complète
                     }
@@ -52,7 +52,7 @@ public class EtatFinancierOhadaService {
                 tableau.setSoldeFinal(0);
                 etat.setTableauTresorerie(tableau);
                     // Notes annexes simplifiées
-                    java.util.List<NoteAnnexe> notes = noteAnnexeService.genererNotesAnnexes();
+                    java.util.List<NoteAnnexe> notes = noteAnnexeService.genererNotesAnnexes("MINIMAL");
                     if (!notes.isEmpty()) {
                         etat.setNoteAnnexe(notes.get(0));
                     }

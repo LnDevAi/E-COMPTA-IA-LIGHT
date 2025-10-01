@@ -74,6 +74,38 @@ function App() {
             </Layout>
           }
         />
+        <Route
+          path="/balance"
+          element={
+            <Layout>
+              {require('./pages/Balance').default()}
+            </Layout>
+          }
+        />
+        <Route
+          path="/grand-livre"
+          element={
+            <Layout>
+              {require('./pages/GrandLivre').default()}
+            </Layout>
+          }
+        />
+        <Route
+          path="/bilan"
+          element={
+            <Layout>
+              {require('./pages/Bilan').default()}
+            </Layout>
+          }
+        />
+        <Route
+          path="/notes-annexes"
+          element={
+            <Layout>
+              {require('./pages/NotesAnnexes').default()}
+            </Layout>
+          }
+        />
       </Routes>
     </Router>
   );

@@ -13,6 +13,10 @@ const Layout = ({ children }) => (
         <Link to="/journaux" style={{ color: '#fff', textDecoration: 'none' }}>Journaux</Link>
         <Link to="/systemes-comptables" style={{ color: '#fff', textDecoration: 'none' }}>Systèmes comptables</Link>
         <Link to="/plan-comptable" style={{ color: '#fff', textDecoration: 'none' }}>Plan comptable</Link>
+        <Link to="/balance" style={{ color: '#fff', textDecoration: 'none' }}>Balance</Link>
+        <Link to="/grand-livre" style={{ color: '#fff', textDecoration: 'none' }}>Grand Livre</Link>
+        <Link to="/bilan" style={{ color: '#fff', textDecoration: 'none' }}>Bilan</Link>
+        <Link to="/notes-annexes" style={{ color: '#fff', textDecoration: 'none' }}>Notes Annexes</Link>
       </nav>
     </aside>
     <main style={{ flex: 1, background: '#f8f9fa', padding: '2rem' }}>

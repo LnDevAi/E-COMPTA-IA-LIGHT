@@ -24,8 +24,8 @@ spring:
 # Exemple : charger le plan OHADA par défaut
   sql:
     init:
-      mode: ${SQL_INIT_MODE:always}
-      data-locations: classpath:data-plan-ohada.sql
+  mode: always
+  data-locations: classpath:data-plan-ohada.sql,classpath:data-journaux.sql
 
   messages:
     basename: messages

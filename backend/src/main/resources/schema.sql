@@ -13,3 +13,11 @@ CREATE TABLE IF NOT EXISTS comptes_comptables (
     nature VARCHAR(50) NOT NULL,
     actif BOOLEAN NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS journaux (
+    id UUID PRIMARY KEY,
+    code VARCHAR(10) UNIQUE NOT NULL,
+    libelle VARCHAR(100) NOT NULL,
+    type VARCHAR(30) NOT NULL,
+    actif BOOLEAN NOT NULL
+);

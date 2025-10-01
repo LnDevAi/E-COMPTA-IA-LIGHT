@@ -1,5 +1,7 @@
 package com.ecomptaia.accounting.controller.financial;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.ecomptaia.accounting.entity.financial.NoteAnnexe;
 import com.ecomptaia.accounting.service.financial.NoteAnnexeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,7 @@ public class NoteAnnexeController {
     private NoteAnnexeService noteAnnexeService;
 
     @GetMapping
-    public List<NoteAnnexe> getNotesAnnexes() {
-        return noteAnnexeService.genererNotesAnnexes();
+    public List<NoteAnnexe> getNotesAnnexes(@RequestParam(required = false, defaultValue = "NORMAL") String systeme) {
+        return noteAnnexeService.genererNotesAnnexes(systeme);
     }
 }
