@@ -22,7 +22,7 @@ jobs:
       - name: Run ESLint
         run: |
           cd frontend-app
-          npx eslint src/**/*.js
+          npx eslint "src/**/*.js"
   lint-backend:
     runs-on: ubuntu-latest
     steps:
@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '17'
       - name: Lint with Checkstyle
         run: |
           cd backend
