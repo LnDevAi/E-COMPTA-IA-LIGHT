@@ -10,3 +10,4 @@ export const validerEcriture = (id) => axios.post(`${API_URL}/${id}/valider`);
 export const getEcrituresByPeriode = (params) => axios.get(`${API_URL}/periode`, { params });
 export const getEcrituresByJournal = (journalId) => axios.get(`${API_URL}/journal/${journalId}`);
 export const getEcrituresByStatut = (statut) => axios.get(`${API_URL}/statut/${statut}`);
+export const updateEcriture = (id, data) => axios.put(`${API_URL}/${id}`, data);

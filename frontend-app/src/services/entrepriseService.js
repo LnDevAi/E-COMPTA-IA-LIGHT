@@ -7,3 +7,4 @@ export const createEntreprise = (data) => axios.post(API_URL, data);
 export const createEntrepriseAuto = (data) => axios.post(`${API_URL}/automatique`, data);
 export const getEntreprises = () => axios.get(API_URL);
 export const getEntreprise = (id) => axios.get(`${API_URL}/${id}`);
+export const updateEntreprise = (id, data) => axios.put(`${API_URL}/${id}`, data);
