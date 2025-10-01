@@ -1,0 +1,41 @@
+# Railway ignore file - excludes files from deployment
+
+# Frontend files (if deploying backend only)
+frontend-app/node_modules/
+frontend-app/build/
+frontend-app/.env
+
+# Backend build artifacts that will be regenerated
+backend/target/
+backend/.mvn/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git files
+.git/
+.github/
+
+# Documentation
+README.md
+
+# Service backups
+services-backup/
+
+# Test files
+backend/src/test/
+**/test/
+
+# Local environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

@@ -1,5 +1,5 @@
 # Dockerfile pour le backend Java Spring Boot
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY backend/target/ecompta-ia-light-2.0.0.jar app.jar
 EXPOSE 8080
