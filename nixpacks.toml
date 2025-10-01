@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["maven", "jdk17"]
+
+[phases.build]
+cmds = [
+  "cd backend",
+  "mvn clean package -DskipTests"
+]
+
+[phases.install]
+cmds = ["echo 'Build complete'"]
+
+[start]
+cmd = "java -Dspring.profiles.active=railway -jar backend/target/ecompta-ia-light-2.0.0.jar"
