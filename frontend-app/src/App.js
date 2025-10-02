@@ -1,3 +1,4 @@
+
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -10,11 +11,21 @@ import Entreprises from './pages/Entreprises';
 import Journaux from './pages/Journaux';
 import SystemesComptables from './pages/SystemesComptables';
 import PlanComptable from './pages/PlanComptable';
+import SycebnlPage from './pages/SycebnlPage';
+import InscriptionPage from './pages/InscriptionPage';
 
 function App() {
   return (
     <Router>
       <Routes>
+          <Route
+            path="/inscription"
+            element={
+              <Layout>
+                <InscriptionPage />
+              </Layout>
+            }
+          />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
@@ -57,6 +68,14 @@ function App() {
             </Layout>
           }
         />
+          <Route
+            path="/sycebnl"
+            element={
+              <Layout>
+                <SycebnlPage />
+              </Layout>
+            }
+          />
         <Route
           path="/systemes-comptables"
           element={
