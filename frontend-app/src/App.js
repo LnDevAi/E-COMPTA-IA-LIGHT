@@ -1,4 +1,3 @@
-
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -103,6 +102,30 @@ function App() {
           element={
             <Layout>
               {require('./pages/NotesAnnexes').default()}
+            </Layout>
+          }
+        />
+        <Route
+          path="/ged"
+          element={
+            <Layout>
+              {require('./modules/ged/GedModule').default()}
+            </Layout>
+          }
+        />
+        <Route
+          path="/iaec/:pieceId"
+          element={
+            <Layout>
+              {(() => {
+                const { useParams } = require('react-router-dom');
+                const IaecModule = require('./modules/iaec/IaecModule').default;
+                const Wrapper = () => {
+                  const { pieceId } = useParams();
+                  return <IaecModule pieceId={pieceId} />;
+                };
+                return <Wrapper />;
+              })()}
             </Layout>
           }
         />

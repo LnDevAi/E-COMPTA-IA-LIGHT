@@ -2,6 +2,7 @@ package com.ecomptaia.security.service;
 
 import com.ecomptaia.security.entity.User;
 import com.ecomptaia.security.repository.UserRepository;
+import com.ecomptaia.security.service.UserLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,10 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final UserLogService userLogService;
     
     public Map<String, Object> register(String username, String email, 
                                        String password, String firstName, String lastName) {
@@ -36,7 +37,8 @@ public class AuthService {
         user.setLastName(lastName);
         user.setRole(User.Role.USER);
         
-        userRepository.save(user);
+    userRepository.save(user);
+    userLogService.log(username, "register");
         
         String token = jwtService.generateToken(username, user.getRole().name());
         
@@ -46,7 +48,7 @@ public class AuthService {
         response.put("role", user.getRole());
         response.put("message", "Registration successful");
         
-        return response;
+    return response;
     }
     
     public Map<String, Object> login(String username, String password) {
@@ -61,8 +63,9 @@ public class AuthService {
             throw new RuntimeException("Account is inactive");
         }
         
-        user.setLastLogin(LocalDateTime.now());
-        userRepository.save(user);
+    user.setLastLogin(LocalDateTime.now());
+    userRepository.save(user);
+    userLogService.log(username, "login");
         
         String token = jwtService.generateToken(username, user.getRole().name());
         
@@ -72,6 +75,6 @@ public class AuthService {
         response.put("role", user.getRole());
         response.put("message", "Login successful");
         
-        return response;
+    return response;
     }
 }
