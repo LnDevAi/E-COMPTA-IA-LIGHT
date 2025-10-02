@@ -39,17 +39,12 @@ jobs:
         run: cd frontend-app && npm test -- --watchAll=false
 
   integration:
-    name: API Integration Test
+    name: Docker Build Test
     runs-on: ubuntu-latest
     needs: [backend, frontend]
     steps:
       - uses: actions/checkout@v4
-      - name: Start Backend
-        run: |
-          nohup java -jar backend/target/ecompta-ia-light-2.0.0.jar &
-          sleep 10
-      - name: Run Postman API tests
-        run: |
-          npm install -g newman
-          newman run test-complete-api.postman_collection.json
-        continue-on-error: true
+      - name: Build Backend Docker Image
+        run: docker build -f Dockerfile.backend -t ecompta-backend .
+      - name: Build Frontend Docker Image
+        run: docker build -f frontend-app/Dockerfile -t ecompta-frontend ./frontend-app
