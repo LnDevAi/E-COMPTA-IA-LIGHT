@@ -2,15 +2,18 @@
 services:
   - type: web
     name: backend
-    env: java
-    buildCommand: cd backend && mvn clean package -DskipTests
-    startCommand: java -jar backend/target/*.jar
+    env: docker
+    dockerfilePath: Dockerfile.backend
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: postgres
     
   - type: web
     name: frontend
-    env: static
-    buildCommand: cd frontend-app && npm install && npm run build
-    staticPublishPath: frontend-app/build
+    env: docker
+    dockerfilePath: frontend-app/Dockerfile
+    plan: starter
     
 databases:
   - name: postgres
