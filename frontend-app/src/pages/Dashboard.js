@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow, Grid } from '@mui/material';
 import { getComptes } from '../services/compteService';
-import { getEcrituresByPeriode, getEcrituresByJournal, getEcrituresByStatut, getEcriture, createEcriture, deleteEcriture, updateEcriture, validerEcriture } from '../services/ecritureService';
+import { getEcrituresByPeriode } from '../services/ecritureService';
 
 // MOCK API pour les tests
 const isTest = typeof global !== 'undefined' && global.__TEST__;
