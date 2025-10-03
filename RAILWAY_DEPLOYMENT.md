@@ -28,14 +28,21 @@ Configure the following environment variables in Railway:
 If you want to use PostgreSQL instead of H2 (recommended for production):
 
 1. Add a PostgreSQL database service in Railway
-2. Set these variables:
-   - `DATABASE_URL` - Will be auto-populated by Railway (format: jdbc:postgresql://host:port/database)
-   - `DATABASE_DRIVER` - Set to `org.postgresql.Driver`
-   - `DATABASE_USERNAME` - Will be auto-populated by Railway
-   - `DATABASE_PASSWORD` - Will be auto-populated by Railway
-   - `HIBERNATE_DIALECT` - Set to `org.hibernate.dialect.PostgreSQLDialect`
-   - `JPA_DDL_AUTO` - Set to `update` for production (not `create-drop`)
-   - `H2_CONSOLE_ENABLED` - Set to `false` for production
+2. Railway will automatically inject these variables when you connect the database:
+   - `PGHOST` - PostgreSQL host
+   - `PGPORT` - PostgreSQL port (default: 5432)
+   - `PGDATABASE` - Database name
+   - `PGUSER` - Database username
+   - `PGPASSWORD` - Database password
+   - `DATABASE_URL` - Complete JDBC connection string
+
+3. You can also manually set these optional variables:
+   - `DATABASE_DRIVER` - Set to `org.postgresql.Driver` (optional, auto-detected)
+   - `HIBERNATE_DIALECT` - Set to `org.hibernate.dialect.PostgreSQLDialect` (optional, auto-detected)
+   - `JPA_DDL_AUTO` - Set to `update` for production (default: `update`)
+   - `H2_CONSOLE_ENABLED` - Set to `false` for production (default: `false`)
+
+**Note**: Railway automatically provides PostgreSQL connection via `PGUSER`, `PGPASSWORD`, and `DATABASE_URL`. The application is configured to use these variables automatically.
 
 ### 3. Build Configuration
 
