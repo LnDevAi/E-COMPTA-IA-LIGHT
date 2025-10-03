@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material';
-import { getSycebnlOrganizations, createSycebnlOrganization, exportSycebnlPdf } from '../services/sycebnlService';
+import { getSycebnlOrganizations, exportSycebnlPdf } from '../services/sycebnlService';
 
 const SycebnlPage = () => {
   const [organizations, setOrganizations] = useState([]);

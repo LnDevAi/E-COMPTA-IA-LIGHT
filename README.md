@@ -17,6 +17,35 @@ Plateforme comptable légère avec Intelligence Artificielle et intégrations ti
 - Java 17+
 - Maven 3.9+
 
+## 🚀 Déploiement Cloud
+
+### Guides de Déploiement Disponibles
+
+- **📘 [Guide Complet de Déploiement (Français)](GUIDE_DEPLOIEMENT_CORRECTIONS.md)** - Guide détaillé avec toutes les corrections
+- **🔧 [Railway Deployment Guide](RAILWAY_DEPLOYMENT.md)** - Déploiement sur Railway avec troubleshooting
+- **🌐 [Render Troubleshooting](RENDER_TROUBLESHOOTING.md)** - Guide de dépannage pour Render
+- **📋 [Corrections PR#2](CORRECTIONS_PR2.md)** - Historique des corrections
+
+### Déploiement Rapide
+
+**Railway** (recommandé pour démarrage rapide) :
+1. Connecter le dépôt à Railway
+2. Définir `JWT_SECRET` dans les variables d'environnement
+3. Déployer automatiquement avec nixpacks
+
+**Render** (recommandé pour production) :
+1. Utiliser le Blueprint : `render.yaml`
+2. Backend + Frontend + PostgreSQL déployés automatiquement
+3. Variables d'environnement configurées automatiquement
+
+### ✅ Corrections Post-Déploiement Appliquées
+
+Le projet a été corrigé pour résoudre les problèmes de crash post-déploiement :
+- ✅ Dialecte de base de données corrigé (H2 par défaut, PostgreSQL auto-détecté)
+- ✅ Support complet de Railway et Render
+- ✅ Documentation complète de troubleshooting
+- ✅ 32 tests unitaires passent
+
 
 git clone https://github.com/LnDevAi/E-COMPTA-IA-LIGHT.git
 cd E-COMPTA-IA-LIGHT/backend
@@ -125,11 +154,34 @@ Swagger UI : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagg
 
 ## Déploiement Railway
 
+**⚠️ Le guide de déploiement a été mis à jour avec les corrections post-déploiement.**
+
+Voir le guide complet : [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
+
+**Configuration minimale** :
 1. Créez un projet Railway
-2. Ajoutez les variables d'environnement (voir ci-dessous)
-3. Déployez le backend avec Dockerfile.backend
-4. Déployez le frontend avec frontend-app/Dockerfile
-5. Configurez les services Railway pour exposer les ports nécessaires
+2. Connectez ce dépôt GitHub
+3. Définissez `JWT_SECRET` dans les variables d'environnement
+4. Railway détecte automatiquement `nixpacks.toml` et déploie
+
+**PostgreSQL (optionnel)** :
+- Ajoutez un service PostgreSQL dans Railway
+- Les variables sont auto-injectées (PGUSER, PGPASSWORD, DATABASE_URL)
+- L'application bascule automatiquement vers PostgreSQL
+
+Pour plus de détails et troubleshooting : [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
+
+---
+
+## Déploiement Render
+
+**Via Blueprint automatique** (recommandé) :
+1. Accédez à https://dashboard.render.com
+2. Créez un nouveau Blueprint
+3. Connectez ce dépôt GitHub
+4. Render lit `render.yaml` et crée tous les services automatiquement
+
+Pour troubleshooting : [RENDER_TROUBLESHOOTING.md](RENDER_TROUBLESHOOTING.md)
 
 ---
 

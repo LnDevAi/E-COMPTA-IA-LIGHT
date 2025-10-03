@@ -10,7 +10,7 @@ export default function GedModule() {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await axios.post('/api/ged/upload', formData);
+      await axios.post('/api/ged/upload', formData);
       setMessage('Import réussi !');
       localStorage.setItem('gedStatus', 'Import GED réussi');
       window.dispatchEvent(new Event('ged-uploaded'));
