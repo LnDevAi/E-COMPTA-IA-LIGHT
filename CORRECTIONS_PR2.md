@@ -106,6 +106,15 @@ Cela créera automatiquement :
 
 Toutes les variables d'environnement sont configurées automatiquement, y compris les connexions à la base de données, les secrets JWT et les URLs d'API.
 
+## Dépannage
+
+Si le déploiement échoue, consultez le guide de dépannage détaillé : [RENDER_TROUBLESHOOTING.md](RENDER_TROUBLESHOOTING.md)
+
+Problèmes courants :
+- **Build échoue** : Vérifier les logs de build dans Render
+- **Service crash au démarrage** : Vérifier que JWT_SECRET est généré et que la base de données est accessible
+- **Frontend ne peut pas se connecter au backend** : Vérifier que REACT_APP_API_URL pointe vers le bon service backend
+
 ## Fichiers modifiés
 
 - `render.yaml` - Configuration complète
