@@ -1,21 +1,45 @@
 # render.yaml
 services:
   - type: web
-    name: backend
+    name: ecompta-backend
     env: docker
-    dockerfilePath: Dockerfile.backend
+    dockerfilePath: ./Dockerfile.backend
     plan: starter
     envVars:
-      - key: DATABASE_URL
-        fromDatabase: postgres
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: 86400000
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: postgres
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: postgres
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: postgres
+          property: password
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: SPRING_JPA_DATABASE_PLATFORM
+        value: org.hibernate.dialect.PostgreSQLDialect
     
   - type: web
-    name: frontend
+    name: ecompta-frontend
     env: docker
-    dockerfilePath: frontend-app/Dockerfile
+    dockerfilePath: ./frontend-app/Dockerfile
     plan: starter
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://ecompta-backend.onrender.com
     
 databases:
   - name: postgres
     databaseName: ecomptaia
     user: ecomptaia
+    plan: starter
