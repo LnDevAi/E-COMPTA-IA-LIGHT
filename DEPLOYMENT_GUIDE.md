@@ -6,11 +6,74 @@ Render, Fly.io, Railway, Heroku, DigitalOcean App Platform
 
 ## Backend (Spring Boot)
 
-Dockerfile.backend is compatible with all platforms
+Dockerfile.backend is compatible with all platforms (multi-stage build with Maven)
 
 ## Frontend (React)
 
-Dockerfile in frontend-app is compatible with all platforms
+Dockerfile in frontend-app is compatible with all platforms (multi-stage build with Nginx)
+
+## Render (Recommandé - Configuration automatique via render.yaml)
+
+### Déploiement automatique via Blueprint
+
+Le fichier `render.yaml` à la racine du projet permet un déploiement automatique complet :
+
+1. **Connecter le repository à Render**
+   - Aller sur https://dashboard.render.com
+   - Cliquer sur "New +" → "Blueprint"
+   - Connecter votre repository GitHub
+   - Sélectionner le repository E-COMPTA-IA-LIGHT
+
+2. **Services créés automatiquement**
+   - `ecompta-backend` : Service Web backend (Dockerfile.backend)
+   - `ecompta-frontend` : Service Web frontend (frontend-app/Dockerfile)
+   - `postgres` : Base de données PostgreSQL
+
+3. **Variables d'environnement configurées automatiquement**
+   - `SPRING_PROFILES_ACTIVE=prod`
+   - `JWT_SECRET` : Généré automatiquement
+   - `JWT_EXPIRATION=86400000`
+   - Connexion PostgreSQL configurée automatiquement
+   - `REACT_APP_API_URL` : URL du backend
+
+4. **Déploiement continu**
+   - Chaque push sur `main` déclenche un déploiement automatique
+   - Les builds Docker se font sur l'infrastructure Render
+   - Pas besoin de build local
+
+### Configuration manuelle (alternative)
+
+Si vous préférez configurer manuellement :
+
+#### Backend
+1. New Web Service
+2. Connect repository
+3. Name: `ecompta-backend`
+4. Environment: Docker
+5. Dockerfile path: `./Dockerfile.backend`
+6. Instance type: Starter
+7. Add environment variables:
+   - `SPRING_PROFILES_ACTIVE=prod`
+   - `JWT_SECRET=<generate-strong-secret>`
+   - `JWT_EXPIRATION=86400000`
+   - Connecter à la database PostgreSQL
+
+#### Frontend
+1. New Web Service
+2. Connect repository
+3. Name: `ecompta-frontend`
+4. Environment: Docker
+5. Dockerfile path: `./frontend-app/Dockerfile`
+6. Instance type: Starter
+7. Add environment variable:
+   - `REACT_APP_API_URL=https://ecompta-backend.onrender.com`
+
+#### Database
+1. New PostgreSQL Database
+2. Name: `postgres`
+3. Database name: `ecomptaia`
+4. User: `ecomptaia`
+5. Instance type: Starter
 
 ## Railway
 

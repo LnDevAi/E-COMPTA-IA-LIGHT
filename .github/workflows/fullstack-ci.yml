@@ -44,6 +44,16 @@ jobs:
     needs: [backend, frontend]
     steps:
       - uses: actions/checkout@v4
+      - name: Validate Dockerfiles exist
+        run: |
+          test -f Dockerfile.backend && echo "✓ Dockerfile.backend exists"
+          test -f frontend-app/Dockerfile && echo "✓ frontend-app/Dockerfile exists"
+      - name: Build Backend Docker Image
+        run: docker build -f Dockerfile.backend -t ecompta-backend .
+        continue-on-error: true
+      - name: Build Frontend Docker Image
+        run: docker build -f frontend-app/Dockerfile -t ecompta-frontend ./frontend-app
+        continue-on-error: true
       - name: Build Backend Docker Image
         run: docker build -f Dockerfile.backend -t ecompta-backend .
       - name: Build Frontend Docker Image
