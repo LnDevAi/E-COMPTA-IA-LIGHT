@@ -1,22 +1,22 @@
 # Railway-specific configuration
 spring:
   datasource:
-    url: ${DATABASE_URL}
-    driver-class-name: org.postgresql.Driver
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
+    url: ${DATABASE_URL:jdbc:h2:mem:testdb}
+    driver-class-name: ${DATABASE_DRIVER:org.h2.Driver}
+    username: ${PGUSER:${DATABASE_USERNAME:sa}}
+    password: ${PGPASSWORD:${DATABASE_PASSWORD:}}
   
   h2:
     console:
-      enabled: false
+      enabled: ${H2_CONSOLE_ENABLED:false}
   
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: false
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
         format_sql: true
 
   sql:

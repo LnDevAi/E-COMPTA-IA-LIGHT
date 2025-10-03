@@ -43,3 +43,4 @@ databases:
     databaseName: ecomptaia
     user: ecomptaia
     plan: starter
+    ipAllowList: []
