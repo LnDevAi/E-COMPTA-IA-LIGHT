@@ -5,6 +5,9 @@
 target/
 build/
 
+# Backend static resources (generated during build from frontend)
+backend/src/main/resources/static/
+
 # IDE
 .idea/
 *.iml
