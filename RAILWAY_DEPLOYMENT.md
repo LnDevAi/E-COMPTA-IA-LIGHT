@@ -47,9 +47,12 @@ If you want to use PostgreSQL instead of H2 (recommended for production):
 ### 3. Build Configuration
 
 The `nixpacks.toml` file is configured to:
-- Use Maven and JDK 17
-- Build the Spring Boot application
+- Use Maven, JDK 17, Node.js, and npm
+- Build the React frontend and copy it to backend static resources
+- Build the Spring Boot application with integrated frontend
 - Run the JAR file on startup
+
+**Integrated Frontend**: The frontend is now automatically built and served from the backend. When you access the Railway URL, you'll see the full E-COMPTA-IA-LIGHT application UI, not just the API.
 
 ### 4. Database Setup
 
@@ -63,31 +66,27 @@ The `nixpacks.toml` file is configured to:
 3. Railway will automatically provide the DATABASE_URL
 4. Update the environment variables as mentioned above
 
-### 5. Frontend Deployment (Optional)
+### 5. Frontend Deployment
 
-For the frontend, you can either:
+The frontend is now **automatically integrated** with the backend deployment:
+- The React app is built during the Railway build process
+- Frontend files are served as static content from the backend
+- No separate frontend service needed
+- Access the full application at your Railway URL
 
-#### Option A: Separate Frontend Service
-1. Create a new service in Railway
-2. Point it to the `frontend-app` directory
-3. Use the provided `frontend-app/Dockerfile`
-4. Set environment variable:
-   - `REACT_APP_API_URL` - URL of your backend service
-
-#### Option B: Serve from Backend
-The backend can be configured to serve the built React app as static files.
+**Environment Variables**: The frontend uses relative URLs to communicate with the backend API, so no additional configuration is needed when deployed together.
 
 ## Health Check
 
 Once deployed, verify the deployment:
-- Backend health: Access your Railway service URL (e.g., `https://your-app.railway.app`)
-- You should see a Spring Boot error page (404 or login) - this means the app is running
-- Try accessing `/api/auth/login` endpoint to verify API is working
+- **Frontend**: Access your Railway service URL (e.g., `https://e-compta-ia-light-production.up.railway.app/`)
+- You should see the **full E-COMPTA-IA-LIGHT application interface** with login/registration pages
+- **Backend API**: API endpoints are accessible at `/api/*` paths
 - H2 Console (if enabled): `https://your-app.railway.app/h2-console`
 
-**Note**: The application doesn't have a root endpoint, so accessing the root URL will show a 404 or redirect to login. This is expected behavior.
+**Note**: The frontend is now integrated with the backend and served automatically. You'll see the complete application UI when accessing the root URL.
 
-To verify the application is fully operational:
+To verify the API is fully operational:
 ```bash
 curl -X POST https://your-app.railway.app/api/auth/register \
   -H "Content-Type: application/json" \

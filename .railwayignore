@@ -1,9 +1,9 @@
 # Railway ignore file - excludes files from deployment
 
-# Frontend files (if deploying backend only)
+# Frontend node_modules (will be reinstalled during build)
 frontend-app/node_modules/
-frontend-app/build/
-frontend-app/.env
+
+# Note: frontend-app/build/ is NOT ignored - it will be generated during Railway build and copied to backend
 
 # Backend build artifacts that will be regenerated
 backend/target/

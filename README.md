@@ -154,7 +154,7 @@ Swagger UI : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagg
 
 ## Déploiement Railway
 
-**⚠️ Le guide de déploiement a été mis à jour avec les corrections post-déploiement.**
+**⚠️ Le guide de déploiement a été mis à jour avec l'intégration frontend.**
 
 Voir le guide complet : [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
 
@@ -163,6 +163,7 @@ Voir le guide complet : [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)
 2. Connectez ce dépôt GitHub
 3. Définissez `JWT_SECRET` dans les variables d'environnement
 4. Railway détecte automatiquement `nixpacks.toml` et déploie
+5. **Le frontend et backend sont déployés ensemble** - accédez à votre URL Railway pour voir l'application complète
 
 **PostgreSQL (optionnel)** :
 - Ajoutez un service PostgreSQL dans Railway
