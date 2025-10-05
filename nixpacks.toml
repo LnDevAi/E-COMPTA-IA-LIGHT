@@ -4,10 +4,7 @@ nixPkgs = ["maven", "jdk17", "nodejs", "npm"]
 [phases.build]
 cmds = [
   "cd frontend-app && npm ci && npm run build",
-  "cd backend",
-  "mkdir -p src/main/resources/static",
-  "cp -r ../frontend-app/build/* src/main/resources/static/",
-  "mvn clean package -DskipTests"
+  "cd backend && mkdir -p src/main/resources/static && cp -r ../frontend-app/build/* src/main/resources/static/ && mvn clean package -DskipTests"
 ]
 
 [phases.install]
