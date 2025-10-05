@@ -26,6 +26,15 @@ Plateforme comptable légère avec Intelligence Artificielle et intégrations ti
 - **🌐 [Render Troubleshooting](RENDER_TROUBLESHOOTING.md)** - Guide de dépannage pour Render
 - **📋 [Corrections PR#2](CORRECTIONS_PR2.md)** - Historique des corrections
 
+### CI/CD et Validation
+
+- **✅ [Workflow Testing Guide](WORKFLOW_TESTING_GUIDE.md)** - Guide de test des workflows GitHub Actions
+- **📊 [Workflow Validation Results](WORKFLOW_VALIDATION_RESULTS.md)** - Résultats des tests de validation
+- **📖 [Workflows Documentation](WORKFLOWS_README.md)** - Documentation complète des workflows
+- **🔍 [Verification Guide](VERIFICATION_WORKFLOWS.md)** - Guide de vérification des workflows
+
+**Status**: ✅ Tous les workflows validés et fonctionnels (7/7)
+
 ### Déploiement Rapide
 
 **Railway** (recommandé pour démarrage rapide) :
