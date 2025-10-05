@@ -19,16 +19,31 @@ public class SecurityConfig {
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
+            http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/", "/index.html", "/static/**", "/*.js", "/*.css", "/*.ico", "/*.png", "/*.json", 
-                                     "/api/auth/**", "/api/test/**", "/h2-console/**").permitAll()
+                    .requestMatchers(
+                        "/", 
+                        "/index.html",
+                        "/favicon.ico",
+                        "/static/**",
+                        "/*.js",
+                        "/*.css",
+                        "/*.ico",
+                        "/*.png",
+                        "/*.json",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/webjars/**",
+                        "/api/auth/**",
+                        "/api/test/**",
+                        "/h2-console/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
                 );
-        
-        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
-        
-        return http.build();
+
+            http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
+            return http.build();
     }
 }
