@@ -130,7 +130,6 @@ jobs:
         run: |
           # Start container in background
           docker run -d --name test-backend \
-            -e SPRING_PROFILES_ACTIVE=prod \
             -e JWT_SECRET=test-secret-key-for-validation-only-min-256-bits-xxxxxxxxxxxxxxxx \
             -p 8080:8080 \
             ecompta-backend:test
