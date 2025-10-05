@@ -15,12 +15,11 @@ nixPkgs = ["maven", "jdk17", "nodejs", "npm"]  # Added Node.js
 [phases.build]
 cmds = [
   "cd frontend-app && npm ci && npm run build",    # Build frontend
-  "cd backend",
-  "mkdir -p src/main/resources/static",
-  "cp -r ../frontend-app/build/* src/main/resources/static/",  # Copy to backend
-  "mvn clean package -DskipTests"                  # Build backend with frontend
+  "cd backend && mkdir -p src/main/resources/static && cp -r ../frontend-app/build/* src/main/resources/static/ && mvn clean package -DskipTests"  # Copy to backend & build
 ]
 ```
+
+**Note**: Commands after the frontend build are chained with `&&` to ensure they run in the same shell context.
 
 ### 2. Backend Configuration
 - **WebConfig.java** (NEW): Serves static files and handles SPA routing
