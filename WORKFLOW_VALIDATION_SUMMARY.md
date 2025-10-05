@@ -19,9 +19,9 @@ Analyzed all 7 GitHub Actions workflow files:
 - ✅ `validate-render.yml` - Render platform validation
 - ✅ `validate-deployment-platforms.yml` - Multi-platform validation
 
-### 2. Configuration Issue Identified and Fixed ✅
+### 2. Configuration Issues Identified and Fixed ✅
 
-#### Issue: render.yaml DATABASE_URL Configuration Error
+#### Issue 1: render.yaml DATABASE_URL Configuration Error
 **Location**: Line 19 of `render.yaml`
 
 **Problem**: 
@@ -45,6 +45,30 @@ The DATABASE_URL environment variable had both a `fromDatabase` reference AND a 
 ```
 
 **Impact**: This fix ensures Render can properly inject the PostgreSQL connection string without conflicts.
+
+#### Issue 2: application.yml SQL Initialization Indentation Error
+**Location**: Lines 27-28 of `backend/src/main/resources/application.yml`
+
+**Problem**:
+The `spring.sql.init` configuration had incorrect YAML indentation causing SQL initialization files to not load.
+
+**Before**:
+```yaml
+  sql:
+    init:
+  mode: always
+  data-locations: classpath:data-plan-ohada.sql,classpath:data-journaux.sql
+```
+
+**After**:
+```yaml
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-plan-ohada.sql,classpath:data-journaux.sql
+```
+
+**Impact**: This fix ensures the application loads reference data (OHADA accounting plan, standard journals) on startup.
 
 ### 3. Comprehensive Validation Testing ✅
 
@@ -167,9 +191,12 @@ The important validation was ensuring:
 ## 📝 Files Changed in This PR
 
 1. **render.yaml** - Fixed DATABASE_URL configuration (1 line removed)
-2. **WORKFLOW_VALIDATION_RESULTS.md** - New file (comprehensive test results)
-3. **WORKFLOW_TESTING_GUIDE.md** - New file (testing guide with commands)
-4. **README.md** - Updated (added CI/CD and validation documentation section)
+2. **backend/src/main/resources/application.yml** - Fixed SQL init indentation (2 lines)
+3. **WORKFLOW_VALIDATION_RESULTS.md** - New file (comprehensive test results)
+4. **WORKFLOW_TESTING_GUIDE.md** - New file (testing guide with commands)
+5. **WORKFLOW_VALIDATION_SUMMARY.md** - New file (complete summary)
+6. **ADDITIONAL_CORRECTIONS_PHASE2.md** - New file (phase 2 corrections details)
+7. **README.md** - Updated (added CI/CD and validation documentation section)
 
 ## 🚀 Expected Behavior in GitHub Actions
 
