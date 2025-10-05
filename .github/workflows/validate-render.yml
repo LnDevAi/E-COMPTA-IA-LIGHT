@@ -1,0 +1,262 @@
+name: Validate Render Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'render.yaml'
+      - 'Dockerfile.backend'
+      - 'frontend-app/Dockerfile'
+      - 'backend/**'
+      - 'frontend-app/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'render.yaml'
+      - 'Dockerfile.backend'
+      - 'frontend-app/Dockerfile'
+      - 'backend/**'
+      - 'frontend-app/**'
+  workflow_dispatch:
+
+jobs:
+  validate-render-config:
+    name: Validate Render Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate render.yaml exists
+        run: |
+          if [ -f render.yaml ]; then
+            echo "✓ render.yaml exists"
+          else
+            echo "✗ render.yaml not found"
+            exit 1
+          fi
+
+      - name: Validate render.yaml syntax (YAML)
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('render.yaml'))" && echo "✓ render.yaml is valid YAML" || (echo "✗ render.yaml has invalid syntax" && exit 1)
+
+      - name: Check required services in render.yaml
+        run: |
+          # Check for backend service
+          if grep -q "name: ecompta-backend" render.yaml; then
+            echo "✓ Backend service found"
+          else
+            echo "✗ Backend service not configured"
+            exit 1
+          fi
+          
+          # Check for frontend service
+          if grep -q "name: ecompta-frontend" render.yaml; then
+            echo "✓ Frontend service found"
+          else
+            echo "✗ Frontend service not configured"
+            exit 1
+          fi
+          
+          # Check for database
+          if grep -q "name: postgres" render.yaml; then
+            echo "✓ PostgreSQL database found"
+          else
+            echo "✗ PostgreSQL database not configured"
+            exit 1
+          fi
+
+      - name: Validate Dockerfile references
+        run: |
+          # Check backend Dockerfile reference
+          if grep -q "dockerfilePath: ./Dockerfile.backend" render.yaml; then
+            echo "✓ Backend Dockerfile path correct"
+          else
+            echo "✗ Backend Dockerfile path incorrect"
+            exit 1
+          fi
+          
+          # Check frontend Dockerfile reference
+          if grep -q "dockerfilePath: ./frontend-app/Dockerfile" render.yaml; then
+            echo "✓ Frontend Dockerfile path correct"
+          else
+            echo "✗ Frontend Dockerfile path incorrect"
+            exit 1
+          fi
+
+      - name: Validate environment variables in render.yaml
+        run: |
+          # Check for essential backend environment variables
+          REQUIRED_VARS="SPRING_PROFILES_ACTIVE JWT_SECRET JWT_EXPIRATION DATABASE_URL SPRING_DATASOURCE_URL"
+          
+          for VAR in $REQUIRED_VARS; do
+            if grep -q "key: $VAR" render.yaml; then
+              echo "✓ $VAR configured"
+            else
+              echo "✗ $VAR missing in render.yaml"
+              exit 1
+            fi
+          done
+          
+          # Check for frontend API URL
+          if grep -q "REACT_APP_API_URL" render.yaml; then
+            echo "✓ REACT_APP_API_URL configured for frontend"
+          else
+            echo "⚠ REACT_APP_API_URL may be missing"
+          fi
+
+      - name: Validate database connection references
+        run: |
+          # Check that database references use fromDatabase
+          if grep -q "fromDatabase:" render.yaml; then
+            echo "✓ Database references use fromDatabase"
+          else
+            echo "⚠ Database references may not be using fromDatabase"
+          fi
+
+  validate-dockerfiles:
+    name: Validate Dockerfiles for Render
+    runs-on: ubuntu-latest
+    needs: validate-render-config
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Dockerfile.backend exists
+        run: |
+          if [ -f Dockerfile.backend ]; then
+            echo "✓ Dockerfile.backend exists"
+          else
+            echo "✗ Dockerfile.backend not found"
+            exit 1
+          fi
+
+      - name: Validate frontend Dockerfile exists
+        run: |
+          if [ -f frontend-app/Dockerfile ]; then
+            echo "✓ frontend-app/Dockerfile exists"
+          else
+            echo "✗ frontend-app/Dockerfile not found"
+            exit 1
+          fi
+
+      - name: Check Dockerfile.backend structure
+        run: |
+          # Check for multi-stage build
+          if grep -q "AS build" Dockerfile.backend; then
+            echo "✓ Backend uses multi-stage build"
+          else
+            echo "⚠ Backend may not use multi-stage build"
+          fi
+          
+          # Check for Maven build
+          if grep -q "mvn clean package" Dockerfile.backend; then
+            echo "✓ Backend includes Maven build"
+          else
+            echo "✗ Backend missing Maven build"
+            exit 1
+          fi
+          
+          # Check for port exposure
+          if grep -q "EXPOSE 8080" Dockerfile.backend; then
+            echo "✓ Backend exposes port 8080"
+          else
+            echo "⚠ Backend may not expose port 8080"
+          fi
+
+      - name: Check frontend Dockerfile structure
+        run: |
+          # Check for multi-stage build
+          if grep -q "AS build" frontend-app/Dockerfile; then
+            echo "✓ Frontend uses multi-stage build"
+          else
+            echo "⚠ Frontend may not use multi-stage build"
+          fi
+          
+          # Check for npm build
+          if grep -q "npm run build" frontend-app/Dockerfile; then
+            echo "✓ Frontend includes npm build"
+          else
+            echo "✗ Frontend missing npm build"
+            exit 1
+          fi
+          
+          # Check for Nginx
+          if grep -q "nginx" frontend-app/Dockerfile; then
+            echo "✓ Frontend uses Nginx"
+          else
+            echo "⚠ Frontend may not use Nginx"
+          fi
+
+  test-docker-builds:
+    name: Test Docker Builds for Render
+    runs-on: ubuntu-latest
+    needs: validate-dockerfiles
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend Docker image
+        run: |
+          echo "Building backend Docker image..."
+          docker build -f Dockerfile.backend -t ecompta-backend:test .
+          echo "✓ Backend Docker build successful"
+
+      - name: Build frontend Docker image
+        run: |
+          echo "Building frontend Docker image..."
+          docker build \
+            --build-arg REACT_APP_API_URL=https://ecompta-backend.onrender.com \
+            -f frontend-app/Dockerfile \
+            -t ecompta-frontend:test \
+            ./frontend-app
+          echo "✓ Frontend Docker build successful"
+
+      - name: Verify backend image
+        run: |
+          docker images | grep ecompta-backend
+          echo "✓ Backend image exists"
+
+      - name: Verify frontend image
+        run: |
+          docker images | grep ecompta-frontend
+          echo "✓ Frontend image exists"
+
+  validate-documentation:
+    name: Validate Render Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check deployment guide exists
+        run: |
+          if [ -f DEPLOYMENT_GUIDE.md ]; then
+            echo "✓ DEPLOYMENT_GUIDE.md exists"
+          else
+            echo "✗ DEPLOYMENT_GUIDE.md not found"
+            exit 1
+          fi
+
+      - name: Check for Render documentation
+        run: |
+          if grep -q "Render" DEPLOYMENT_GUIDE.md; then
+            echo "✓ Render section found in DEPLOYMENT_GUIDE.md"
+          else
+            echo "⚠ Render section may be missing"
+          fi
+          
+          if grep -q "render.yaml" DEPLOYMENT_GUIDE.md; then
+            echo "✓ render.yaml documented"
+          else
+            echo "⚠ render.yaml may not be documented"
+          fi
+          
+          if grep -q "Blueprint" DEPLOYMENT_GUIDE.md; then
+            echo "✓ Blueprint deployment documented"
+          else
+            echo "⚠ Blueprint deployment may not be documented"
+          fi

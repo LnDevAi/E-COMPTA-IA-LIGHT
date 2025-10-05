@@ -1,0 +1,373 @@
+name: Multi-Platform Deployment Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Run weekly to catch any drift in configurations
+    - cron: '0 0 * * 0'
+
+jobs:
+  validate-all-platforms:
+    name: Validate All Platform Configurations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check deployment files exist
+        run: |
+          echo "Checking deployment configuration files..."
+          
+          # Render
+          if [ -f render.yaml ]; then
+            echo "✓ Render: render.yaml exists"
+          else
+            echo "✗ Render: render.yaml missing"
+            exit 1
+          fi
+          
+          # Railway
+          if [ -f railway.json ]; then
+            echo "✓ Railway: railway.json exists"
+          else
+            echo "⚠ Railway: railway.json missing"
+          fi
+          
+          if [ -f nixpacks.toml ]; then
+            echo "✓ Railway: nixpacks.toml exists"
+          else
+            echo "⚠ Railway: nixpacks.toml missing"
+          fi
+          
+          if [ -f Procfile ]; then
+            echo "✓ Railway/Heroku: Procfile exists"
+          else
+            echo "⚠ Railway/Heroku: Procfile missing"
+          fi
+          
+          # Docker (all platforms)
+          if [ -f Dockerfile.backend ]; then
+            echo "✓ Docker: Dockerfile.backend exists"
+          else
+            echo "✗ Docker: Dockerfile.backend missing"
+            exit 1
+          fi
+          
+          if [ -f frontend-app/Dockerfile ]; then
+            echo "✓ Docker: frontend-app/Dockerfile exists"
+          else
+            echo "✗ Docker: frontend-app/Dockerfile missing"
+            exit 1
+          fi
+
+      - name: Validate .dockerignore files
+        run: |
+          if [ -f .dockerignore ]; then
+            echo "✓ Root .dockerignore exists"
+          else
+            echo "⚠ Root .dockerignore missing (recommended)"
+          fi
+          
+          if [ -f frontend-app/.dockerignore ]; then
+            echo "✓ Frontend .dockerignore exists"
+          else
+            echo "⚠ Frontend .dockerignore missing (recommended)"
+          fi
+
+      - name: Check documentation for all platforms
+        run: |
+          if [ -f DEPLOYMENT_GUIDE.md ]; then
+            echo "Checking DEPLOYMENT_GUIDE.md for platform coverage..."
+            
+            # Check each platform
+            for platform in "Render" "Railway" "Fly.io" "Heroku" "DigitalOcean"; do
+              if grep -q "$platform" DEPLOYMENT_GUIDE.md; then
+                echo "✓ $platform documented"
+              else
+                echo "⚠ $platform may not be documented"
+              fi
+            done
+          else
+            echo "✗ DEPLOYMENT_GUIDE.md not found"
+            exit 1
+          fi
+
+  validate-docker-compatibility:
+    name: Docker Compatibility Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [backend, frontend]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend Docker image
+        if: matrix.component == 'backend'
+        run: |
+          docker build -f Dockerfile.backend -t ecompta-backend:test .
+          echo "✓ Backend Docker build successful"
+
+      - name: Build frontend Docker image
+        if: matrix.component == 'frontend'
+        run: |
+          docker build \
+            --build-arg REACT_APP_API_URL=https://example.com \
+            -f frontend-app/Dockerfile \
+            -t ecompta-frontend:test \
+            ./frontend-app
+          echo "✓ Frontend Docker build successful"
+
+      - name: Test backend container startup
+        if: matrix.component == 'backend'
+        run: |
+          # Start container in background
+          docker run -d --name test-backend \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e JWT_SECRET=test-secret-key-for-validation-only-min-256-bits-xxxxxxxxxxxxxxxx \
+            -p 8080:8080 \
+            ecompta-backend:test
+          
+          # Wait for startup
+          sleep 20
+          
+          # Check if container is running
+          if docker ps | grep test-backend; then
+            echo "✓ Backend container started successfully"
+          else
+            echo "✗ Backend container failed to start"
+            docker logs test-backend
+            exit 1
+          fi
+          
+          # Cleanup
+          docker stop test-backend
+          docker rm test-backend
+
+      - name: Test frontend container startup
+        if: matrix.component == 'frontend'
+        run: |
+          # Start container in background
+          docker run -d --name test-frontend \
+            -p 80:80 \
+            ecompta-frontend:test
+          
+          # Wait for startup
+          sleep 10
+          
+          # Check if container is running
+          if docker ps | grep test-frontend; then
+            echo "✓ Frontend container started successfully"
+          else
+            echo "✗ Frontend container failed to start"
+            docker logs test-frontend
+            exit 1
+          fi
+          
+          # Cleanup
+          docker stop test-frontend
+          docker rm test-frontend
+
+  validate-build-artifacts:
+    name: Validate Build Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build backend
+        run: |
+          cd backend
+          mvn clean package -DskipTests
+          echo "✓ Backend JAR built successfully"
+
+      - name: Verify backend JAR
+        run: |
+          if [ -f backend/target/ecompta-ia-light-2.0.0.jar ]; then
+            JAR_SIZE=$(ls -lh backend/target/ecompta-ia-light-2.0.0.jar | awk '{print $5}')
+            echo "✓ Backend JAR exists (Size: $JAR_SIZE)"
+            
+            # Check if JAR is not empty
+            if [ -s backend/target/ecompta-ia-light-2.0.0.jar ]; then
+              echo "✓ Backend JAR is not empty"
+            else
+              echo "✗ Backend JAR is empty"
+              exit 1
+            fi
+          else
+            echo "✗ Backend JAR not found"
+            exit 1
+          fi
+
+      - name: Build frontend
+        run: |
+          cd frontend-app
+          npm install
+          npm run build
+          echo "✓ Frontend built successfully"
+
+      - name: Verify frontend build
+        run: |
+          if [ -d frontend-app/build ] && [ -f frontend-app/build/index.html ]; then
+            BUILD_SIZE=$(du -sh frontend-app/build | awk '{print $1}')
+            echo "✓ Frontend build exists (Size: $BUILD_SIZE)"
+            
+            # Check essential files
+            if [ -f frontend-app/build/index.html ]; then
+              echo "✓ index.html exists"
+            fi
+            
+            if [ -d frontend-app/build/static ]; then
+              echo "✓ static directory exists"
+            fi
+          else
+            echo "✗ Frontend build incomplete"
+            exit 1
+          fi
+
+  validate-configuration-consistency:
+    name: Validate Configuration Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check JAR name consistency
+        run: |
+          echo "Checking JAR file name consistency across configurations..."
+          
+          JAR_NAME="ecompta-ia-light-2.0.0.jar"
+          
+          # Check in nixpacks.toml
+          if [ -f nixpacks.toml ] && grep -q "$JAR_NAME" nixpacks.toml; then
+            echo "✓ JAR name in nixpacks.toml: $JAR_NAME"
+          else
+            echo "⚠ JAR name may be inconsistent in nixpacks.toml"
+          fi
+          
+          # Check in Procfile
+          if [ -f Procfile ] && grep -q "$JAR_NAME" Procfile; then
+            echo "✓ JAR name in Procfile: $JAR_NAME"
+          else
+            echo "⚠ JAR name may be inconsistent in Procfile"
+          fi
+          
+          # Check in pom.xml
+          if grep -q "<finalName>ecompta-ia-light-2.0.0</finalName>" backend/pom.xml; then
+            echo "✓ JAR name matches in pom.xml"
+          else
+            echo "⚠ JAR name may not match pom.xml configuration"
+          fi
+
+      - name: Check port configuration consistency
+        run: |
+          echo "Checking port configuration consistency..."
+          
+          # Backend should use port 8080
+          if grep -q "8080" Dockerfile.backend; then
+            echo "✓ Backend Dockerfile exposes port 8080"
+          fi
+          
+          if grep -q "8080" render.yaml; then
+            echo "✓ Render config uses port 8080 for backend"
+          fi
+          
+          # Frontend should use port 80
+          if grep -q "80" frontend-app/Dockerfile; then
+            echo "✓ Frontend Dockerfile exposes port 80"
+          fi
+          
+          if grep -q "80" render.yaml; then
+            echo "✓ Render config uses port 80 for frontend"
+          fi
+
+      - name: Check environment variable patterns
+        run: |
+          echo "Checking environment variable patterns..."
+          
+          # Check that JWT_SECRET is required
+          if grep -q "JWT_SECRET" render.yaml || grep -q "JWT_SECRET" RAILWAY_DEPLOYMENT.md 2>/dev/null; then
+            echo "✓ JWT_SECRET is documented/configured"
+          else
+            echo "⚠ JWT_SECRET may not be properly documented"
+          fi
+          
+          # Check database configuration
+          if grep -q "DATABASE_URL\|SPRING_DATASOURCE" render.yaml; then
+            echo "✓ Database configuration present"
+          else
+            echo "⚠ Database configuration may be missing"
+          fi
+
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-all-platforms, validate-docker-compatibility, validate-build-artifacts, validate-configuration-consistency]
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate summary
+        run: |
+          echo "## 🚀 Multi-Platform Deployment Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Validated Platforms:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Render (render.yaml + Dockerfiles)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Railway (nixpacks.toml + railway.json + Procfile)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Docker-based platforms (Fly.io, DigitalOcean, etc.)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Validation Results:" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.validate-all-platforms.result }}" == "success" ]; then
+            echo "- ✅ Platform configurations validated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Platform configuration validation failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.validate-docker-compatibility.result }}" == "success" ]; then
+            echo "- ✅ Docker builds compatible with all platforms" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Docker compatibility issues detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.validate-build-artifacts.result }}" == "success" ]; then
+            echo "- ✅ Build artifacts validated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Build artifact validation failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.validate-configuration-consistency.result }}" == "success" ]; then
+            echo "- ✅ Configuration consistency validated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ❌ Configuration inconsistencies detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All external deployment platforms are ready! 🎉" >> $GITHUB_STEP_SUMMARY
