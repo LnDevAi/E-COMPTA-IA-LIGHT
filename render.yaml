@@ -16,7 +16,6 @@ services:
         fromDatabase:
           name: postgres
           property: connectionString
-        value: 86400000
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: postgres

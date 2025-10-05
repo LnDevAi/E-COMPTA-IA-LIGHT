@@ -21,7 +21,7 @@ jobs:
       - name: Run ESLint
         run: |
           cd frontend-app
-          npx eslint "src/**/*.js"
+          npm run lint
   lint-backend:
     runs-on: ubuntu-latest
     steps:
