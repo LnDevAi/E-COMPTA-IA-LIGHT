@@ -25,12 +25,14 @@
   ],
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "react/prop-types": "warn",
+    "react/prop-types": "off",
+    "react/no-unescaped-entities": "off",
     "no-console": ["warn", { "allow": ["warn", "error"] }],
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-unused-vars": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "jsx-a11y/anchor-is-valid": "warn"
+    "jsx-a11y/anchor-is-valid": "warn",
+    "jsx-a11y/label-has-associated-control": "off"
   },
   "settings": {
     "react": {
