@@ -13,6 +13,8 @@ import SystemesComptables from './pages/SystemesComptables';
 import PlanComptable from './pages/PlanComptable';
 import SycebnlPage from './pages/SycebnlPage';
 import InscriptionPage from './pages/InscriptionPage';
+import CompteResultat from './pages/CompteResultat';
+import EtatsFinanciersOhada from './pages/EtatsFinanciersOhada';
 
 function App() {
   return (
@@ -113,6 +115,22 @@ function App() {
           element={
             <Layout>
               {require('./pages/Bilan').default()}
+            </Layout>
+          }
+        />
+        <Route
+          path="/compte-resultat"
+          element={
+            <Layout>
+              <CompteResultat />
+            </Layout>
+          }
+        />
+        <Route
+          path="/etats-financiers-ohada"
+          element={
+            <Layout>
+              <EtatsFinanciersOhada />
             </Layout>
           }
         />
