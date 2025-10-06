@@ -1,7 +1,7 @@
-import axios from 'axios';
+import apiClient from '../config/api';
 
 export const inscrireUtilisateur = async (form) => {
-  const res = await axios.post('/api/utilisateur/inscription', {
+  const res = await apiClient.post('/api/utilisateur/inscription', {
     nom: form.nom,
     email: form.email,
     password: form.password,
@@ -13,7 +13,7 @@ export const inscrireUtilisateur = async (form) => {
 };
 
 export const gererAbonnement = async (form) => {
-  const res = await axios.post('/api/utilisateur/abonnement', {
+  const res = await apiClient.post('/api/utilisateur/abonnement', {
     email: form.email,
     abonnement: form.abonnement,
     modules: form.modules,

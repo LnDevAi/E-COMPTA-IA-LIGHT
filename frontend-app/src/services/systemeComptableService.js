@@ -1,8 +1,8 @@
 // Service systèmes comptables
-import axios from 'axios';
+import apiClient from '../config/api';
 
 const API_URL = '/api/systemes-comptables';
 
-export const createSysteme = (data) => axios.post(API_URL, data);
-export const getSystemes = () => axios.get(API_URL);
-export const getSysteme = (code) => axios.get(`${API_URL}/${code}`);
+export const createSysteme = (data) => apiClient.post(API_URL, data);
+export const getSystemes = () => apiClient.get(API_URL);
+export const getSysteme = (code) => apiClient.get(`${API_URL}/${code}`);
