@@ -1,155 +1,229 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useTranslation } from 'react-i18next';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@mui/material';
 import apiClient from '../config/api';
+import { compteResultatSchema } from '../validation/schemas';
 
 export default function CompteResultat() {
-  const [dateDebut, setDateDebut] = useState('');
-  const [dateFin, setDateFin] = useState('');
+  const { t } = useTranslation();
   const [compteResultat, setCompteResultat] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleGenerer = useCallback(async () => {
-    if (!dateDebut || !dateFin) {
-      setError('Veuillez saisir les dates de début et de fin');
-      return;
+  const { control, handleSubmit, formState: { errors }, watch } = useForm({
+    resolver: yupResolver(compteResultatSchema),
+    defaultValues: {
+      dateDebut: '',
+      dateFin: ''
     }
+  });
 
+  const dateDebut = watch('dateDebut');
+  const dateFin = watch('dateFin');
+
+  const onSubmit = async (data) => {
     setLoading(true);
     setError('');
     try {
       const response = await apiClient.get('/api/financial/compte-resultat', {
         params: {
-          dateDebut,
-          dateFin
+          dateDebut: data.dateDebut,
+          dateFin: data.dateFin
         }
       });
       setCompteResultat(response.data);
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.response?.data || err.message;
-      setError(`Erreur lors de la génération du compte de résultat : ${errorMessage}`);
+      setError(t('incomeStatement.errors.generationError', { message: errorMessage }));
     } finally {
       setLoading(false);
     }
-  }, [dateDebut, dateFin]);
+  };
 
   return (
-    <div>
-      <h1>Compte de Résultat</h1>
+    <Box>
+      <Typography variant="h4" component="h1" gutterBottom>
+        {t('incomeStatement.title')}
+      </Typography>
       
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ marginBottom: 10 }}>
-          <label>Date de début: </label>
-          <input
-            type="date"
-            value={dateDebut}
-            onChange={(e) => setDateDebut(e.target.value)}
-            style={{ marginLeft: 10, padding: 5 }}
-          />
-        </div>
-        <div style={{ marginBottom: 10 }}>
-          <label>Date de fin: </label>
-          <input
-            type="date"
-            value={dateFin}
-            onChange={(e) => setDateFin(e.target.value)}
-            style={{ marginLeft: 10, padding: 5 }}
-          />
-        </div>
-        <button onClick={handleGenerer} disabled={loading} style={{ padding: '8px 16px' }}>
-          {loading ? 'Génération...' : 'Générer le Compte de Résultat'}
-        </button>
-      </div>
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+            <Controller
+              name="dateDebut"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={t('incomeStatement.startDate')}
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  error={!!errors.dateDebut}
+                  helperText={errors.dateDebut ? t(errors.dateDebut.message) : ''}
+                  sx={{ flexGrow: 1, minWidth: 200 }}
+                />
+              )}
+            />
+            <Controller
+              name="dateFin"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={t('incomeStatement.endDate')}
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  error={!!errors.dateFin}
+                  helperText={errors.dateFin ? t(errors.dateFin.message) : ''}
+                  sx={{ flexGrow: 1, minWidth: 200 }}
+                />
+              )}
+            />
+          </Box>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={loading}
+            startIcon={loading && <CircularProgress size={20} />}
+          >
+            {loading ? t('incomeStatement.generating') : t('incomeStatement.generate')}
+          </Button>
+        </form>
+      </Paper>
 
       {error && (
-        <div style={{ color: 'red', marginBottom: 20, padding: 10, background: '#ffe6e6', borderRadius: 4 }}>
+        <Alert severity="error" sx={{ mb: 3 }}>
           {error}
-        </div>
+        </Alert>
       )}
 
       {compteResultat && (
-        <div style={{ marginTop: 20 }}>
-          <h2>Compte de Résultat - Du {dateDebut} au {dateFin}</h2>
+        <Box>
+          <Typography variant="h5" component="h2" gutterBottom>
+            {t('incomeStatement.title')} - {t('incomeStatement.period', { 
+              startDate: dateDebut, 
+              endDate: dateFin 
+            })}
+          </Typography>
           
-          <div style={{ marginBottom: 30 }}>
-            <h3>Charges</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#f0f0f0' }}>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Compte</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Libellé</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Montant</th>
-                </tr>
-              </thead>
-              <tbody>
-                {compteResultat.charges && compteResultat.charges.map((charge) => (
-                  <tr key={`charge-${charge.compte}-${charge.libelle}`}>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{charge.compte}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{charge.libelle}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                      {charge.montant?.toFixed(2)} €
-                    </td>
-                  </tr>
-                ))}
-                <tr style={{ fontWeight: 'bold', background: '#f8f9fa' }}>
-                  <td colSpan="2" style={{ border: '1px solid #ddd', padding: 8 }}>
-                    Total Charges
-                  </td>
-                  <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                    {compteResultat.totalCharges?.toFixed(2)} €
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              {t('incomeStatement.expenses')}
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('incomeStatement.account')}</TableCell>
+                    <TableCell>{t('incomeStatement.label')}</TableCell>
+                    <TableCell align="right">{t('incomeStatement.amount')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {compteResultat.charges && compteResultat.charges.map((charge, index) => (
+                    <TableRow key={`charge-${index}`}>
+                      <TableCell>{charge.compte}</TableCell>
+                      <TableCell>{charge.libelle}</TableCell>
+                      <TableCell align="right">
+                        {charge.montant?.toFixed(2)} €
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>
+                    <TableCell colSpan={2}>
+                      {t('incomeStatement.totalExpenses')}
+                    </TableCell>
+                    <TableCell align="right">
+                      {compteResultat.totalCharges?.toFixed(2)} €
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
 
-          <div style={{ marginBottom: 30 }}>
-            <h3>Produits</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#f0f0f0' }}>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Compte</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>Libellé</th>
-                  <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>Montant</th>
-                </tr>
-              </thead>
-              <tbody>
-                {compteResultat.produits && compteResultat.produits.map((produit) => (
-                  <tr key={`produit-${produit.compte}-${produit.libelle}`}>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{produit.compte}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8 }}>{produit.libelle}</td>
-                    <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                      {produit.montant?.toFixed(2)} €
-                    </td>
-                  </tr>
-                ))}
-                <tr style={{ fontWeight: 'bold', background: '#f8f9fa' }}>
-                  <td colSpan="2" style={{ border: '1px solid #ddd', padding: 8 }}>
-                    Total Produits
-                  </td>
-                  <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                    {compteResultat.totalProduits?.toFixed(2)} €
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              {t('incomeStatement.revenues')}
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>{t('incomeStatement.account')}</TableCell>
+                    <TableCell>{t('incomeStatement.label')}</TableCell>
+                    <TableCell align="right">{t('incomeStatement.amount')}</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {compteResultat.produits && compteResultat.produits.map((produit, index) => (
+                    <TableRow key={`produit-${index}`}>
+                      <TableCell>{produit.compte}</TableCell>
+                      <TableCell>{produit.libelle}</TableCell>
+                      <TableCell align="right">
+                        {produit.montant?.toFixed(2)} €
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>
+                    <TableCell colSpan={2}>
+                      {t('incomeStatement.totalRevenues')}
+                    </TableCell>
+                    <TableCell align="right">
+                      {compteResultat.totalProduits?.toFixed(2)} €
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
 
-          <div style={{ marginTop: 30, padding: 15, background: '#e8f4f8', borderRadius: 4 }}>
-            <h3>Résultat</h3>
-            <div style={{ fontSize: 18, fontWeight: 'bold' }}>
-              Résultat Net: {' '}
-              <span style={{ color: compteResultat.resultatNet >= 0 ? 'green' : 'red' }}>
+          <Paper sx={{ p: 3, bgcolor: 'info.lighter' }}>
+            <Typography variant="h6" gutterBottom>
+              {t('incomeStatement.result')}
+            </Typography>
+            <Typography variant="h5" component="div" sx={{ fontWeight: 'bold' }}>
+              {t('incomeStatement.netResult')}:{' '}
+              <Box
+                component="span"
+                sx={{ 
+                  color: compteResultat.resultatNet >= 0 ? 'success.main' : 'error.main' 
+                }}
+              >
                 {compteResultat.resultatNet?.toFixed(2)} €
-              </span>
-            </div>
-            {compteResultat.resultatNet >= 0 ? (
-              <p style={{ marginTop: 10, color: 'green' }}>✓ Bénéfice</p>
-            ) : (
-              <p style={{ marginTop: 10, color: 'red' }}>✗ Perte</p>
-            )}
-          </div>
-        </div>
+              </Box>
+            </Typography>
+            <Typography 
+              sx={{ 
+                mt: 1, 
+                color: compteResultat.resultatNet >= 0 ? 'success.main' : 'error.main',
+                fontWeight: 'medium'
+              }}
+            >
+              {compteResultat.resultatNet >= 0 
+                ? `✓ ${t('incomeStatement.profit')}`
+                : `✗ ${t('incomeStatement.loss')}`
+              }
+            </Typography>
+          </Paper>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }
