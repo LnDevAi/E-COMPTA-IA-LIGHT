@@ -36,7 +36,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText(/Something went wrong|Une erreur est survenue/i)).toBeInTheDocument();
+    expect(screen.getByText(/Une erreur s'est produite/i)).toBeInTheDocument();
   });
 
   it('displays error details in development mode', () => {
