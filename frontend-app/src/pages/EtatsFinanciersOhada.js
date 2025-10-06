@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import apiClient from '../config/api';
 
 export default function EtatsFinanciersOhada() {
   const [entreprises, setEntreprises] = useState([]);
@@ -15,7 +15,7 @@ export default function EtatsFinanciersOhada() {
 
   const loadEntreprises = async () => {
     try {
-      const response = await axios.get('/api/entreprises');
+      const response = await apiClient.get('/api/entreprises');
       setEntreprises(response.data);
     } catch (err) {
       console.error('Erreur lors du chargement des entreprises:', err);
@@ -32,7 +32,7 @@ export default function EtatsFinanciersOhada() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('/api/etats-financiers-ohada/generer', 
+      const response = await apiClient.post('/api/etats-financiers-ohada/generer', 
         selectedEntreprise,
         { params: { exercice } }
       );

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import axios from 'axios';
+import apiClient from '../config/api';
 
 export default function CompteResultat() {
   const [dateDebut, setDateDebut] = useState('');
@@ -17,7 +17,7 @@ export default function CompteResultat() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('/api/financial/compte-resultat', {
+      const response = await apiClient.get('/api/financial/compte-resultat', {
         params: {
           dateDebut,
           dateFin

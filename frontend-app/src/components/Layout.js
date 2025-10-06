@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { logout } from '../utils/auth';
 
 const Layout = ({ children }) => (
   <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -37,7 +38,7 @@ const Layout = ({ children }) => (
       <header style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 20 }}>
         <Link to="/login" style={{ marginRight: 10 }}>Connexion</Link>
         <Link to="/register">Inscription</Link>
-        <button style={{ marginLeft: 20 }} onClick={() => { localStorage.removeItem('token'); window.location.href = '/login'; }}>Déconnexion</button>
+        <button style={{ marginLeft: 20 }} onClick={logout}>Déconnexion</button>
       </header>
       {children}
     </main>
