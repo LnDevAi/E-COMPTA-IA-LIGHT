@@ -1,7 +1,9 @@
 
 import './App.css';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -16,10 +18,27 @@ import InscriptionPage from './pages/InscriptionPage';
 import CompteResultat from './pages/CompteResultat';
 import EtatsFinanciersOhada from './pages/EtatsFinanciersOhada';
 
+// Lazy loading pour les pages moins fréquemment utilisées
+const Balance = lazy(() => import('./pages/Balance'));
+const GrandLivre = lazy(() => import('./pages/GrandLivre'));
+const Bilan = lazy(() => import('./pages/Bilan'));
+const NotesAnnexes = lazy(() => import('./pages/NotesAnnexes'));
+const GedModule = lazy(() => import('./modules/ged/GedModule'));
+const IaecWrapper = lazy(() => import('./pages/IaecWrapper'));
+
+// Composant de chargement
+const LoadingFallback = () => (
+  <div style={{ padding: '2rem', textAlign: 'center' }}>
+    <p>Chargement...</p>
+  </div>
+);
+
 function App() {
   return (
-    <Router>
-      <Routes>
+    <ErrorBoundary>
+      <Router>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
           <Route
             path="/inscription"
             element={
@@ -98,7 +117,7 @@ function App() {
           path="/balance"
           element={
             <Layout>
-              {require('./pages/Balance').default()}
+              <Balance />
             </Layout>
           }
         />
@@ -106,7 +125,7 @@ function App() {
           path="/grand-livre"
           element={
             <Layout>
-              {require('./pages/GrandLivre').default()}
+              <GrandLivre />
             </Layout>
           }
         />
@@ -114,7 +133,7 @@ function App() {
           path="/bilan"
           element={
             <Layout>
-              {require('./pages/Bilan').default()}
+              <Bilan />
             </Layout>
           }
         />
@@ -138,7 +157,7 @@ function App() {
           path="/notes-annexes"
           element={
             <Layout>
-              {require('./pages/NotesAnnexes').default()}
+              <NotesAnnexes />
             </Layout>
           }
         />
@@ -146,28 +165,22 @@ function App() {
           path="/ged"
           element={
             <Layout>
-              {require('./modules/ged/GedModule').default()}
+              <GedModule />
             </Layout>
           }
-        />
+                />
         <Route
           path="/iaec/:pieceId"
           element={
             <Layout>
-              {(() => {
-                const { useParams } = require('react-router-dom');
-                const IaecModule = require('./modules/iaec/IaecModule').default;
-                const Wrapper = () => {
-                  const { pieceId } = useParams();
-                  return <IaecModule pieceId={pieceId} />;
-                };
-                return <Wrapper />;
-              })()}
+              <IaecWrapper />
             </Layout>
           }
         />
       </Routes>
+      </Suspense>
     </Router>
+    </ErrorBoundary>
   );
 }
 
