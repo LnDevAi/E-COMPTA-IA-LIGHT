@@ -1,7 +1,7 @@
 // Service d'authentification
-import axios from 'axios';
+import apiClient from '../config/api';
 
 const API_URL = '/api/auth';
 
-export const register = (data) => axios.post(`${API_URL}/register`, data);
-export const login = (data) => axios.post(`${API_URL}/login`, data);
+export const register = (data) => apiClient.post(`${API_URL}/register`, data);
+export const login = (data) => apiClient.post(`${API_URL}/login`, data);

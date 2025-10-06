@@ -1,19 +1,5 @@
-import axios from 'axios';
+// This file is deprecated. Use '../config/api' instead.
+// Kept for backward compatibility.
+import apiClient from '../config/api';
 
-const instance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Ajout du token JWT si présent
-instance.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export default instance;
+export default apiClient;
