@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 export default function EtatsFinanciersOhada() {
@@ -19,10 +19,11 @@ export default function EtatsFinanciersOhada() {
       setEntreprises(response.data);
     } catch (err) {
       console.error('Erreur lors du chargement des entreprises:', err);
+      setError('Erreur lors du chargement des entreprises');
     }
   };
 
-  const handleGenerer = async () => {
+  const handleGenerer = useCallback(async () => {
     if (!selectedEntreprise || !exercice) {
       setError('Veuillez sélectionner une entreprise et saisir l\'exercice');
       return;
@@ -37,11 +38,12 @@ export default function EtatsFinanciersOhada() {
       );
       setEtats(response.data);
     } catch (err) {
-      setError('Erreur lors de la génération des états financiers : ' + (err.response?.data || err.message));
+      const errorMessage = err.response?.data?.message || err.response?.data || err.message;
+      setError(`Erreur lors de la génération des états financiers : ${errorMessage}`);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedEntreprise, exercice]);
 
   return (
     <div>
@@ -150,8 +152,8 @@ export default function EtatsFinanciersOhada() {
                         </tr>
                       </thead>
                       <tbody>
-                        {etats.bilan.actif && etats.bilan.actif.map((item, idx) => (
-                          <tr key={idx}>
+                        {etats.bilan.actif && etats.bilan.actif.map((item) => (
+                          <tr key={`actif-${item.libelle}`}>
                             <td style={{ border: '1px solid #ddd', padding: 6 }}>
                               {item.libelle}
                             </td>
@@ -187,8 +189,8 @@ export default function EtatsFinanciersOhada() {
                         </tr>
                       </thead>
                       <tbody>
-                        {etats.bilan.passif && etats.bilan.passif.map((item, idx) => (
-                          <tr key={idx}>
+                        {etats.bilan.passif && etats.bilan.passif.map((item) => (
+                          <tr key={`passif-${item.libelle}`}>
                             <td style={{ border: '1px solid #ddd', padding: 6 }}>
                               {item.libelle}
                             </td>
@@ -237,8 +239,8 @@ export default function EtatsFinanciersOhada() {
                     </tr>
                   </thead>
                   <tbody>
-                    {etats.compteResultat.lignes && etats.compteResultat.lignes.map((ligne, idx) => (
-                      <tr key={idx}>
+                    {etats.compteResultat.lignes && etats.compteResultat.lignes.map((ligne) => (
+                      <tr key={`cr-ligne-${ligne.libelle}`}>
                         <td style={{ border: '1px solid #ddd', padding: 8 }}>
                           {ligne.libelle}
                         </td>
@@ -281,8 +283,8 @@ export default function EtatsFinanciersOhada() {
               <div style={{ border: '1px solid #ddd', padding: 15 }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                   <tbody>
-                    {etats.tableauFlux.lignes && etats.tableauFlux.lignes.map((ligne, idx) => (
-                      <tr key={idx}>
+                    {etats.tableauFlux.lignes && etats.tableauFlux.lignes.map((ligne) => (
+                      <tr key={`flux-${ligne.libelle}`}>
                         <td style={{ border: '1px solid #ddd', padding: 8 }}>
                           {ligne.libelle}
                         </td>

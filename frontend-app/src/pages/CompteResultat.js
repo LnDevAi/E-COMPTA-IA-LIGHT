@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import axios from 'axios';
 
 export default function CompteResultat() {
@@ -8,7 +8,7 @@ export default function CompteResultat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleGenerer = async () => {
+  const handleGenerer = useCallback(async () => {
     if (!dateDebut || !dateFin) {
       setError('Veuillez saisir les dates de début et de fin');
       return;
@@ -25,11 +25,12 @@ export default function CompteResultat() {
       });
       setCompteResultat(response.data);
     } catch (err) {
-      setError('Erreur lors de la génération du compte de résultat : ' + (err.response?.data || err.message));
+      const errorMessage = err.response?.data?.message || err.response?.data || err.message;
+      setError(`Erreur lors de la génération du compte de résultat : ${errorMessage}`);
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateDebut, dateFin]);
 
   return (
     <div>
@@ -80,8 +81,8 @@ export default function CompteResultat() {
                 </tr>
               </thead>
               <tbody>
-                {compteResultat.charges && compteResultat.charges.map((charge, idx) => (
-                  <tr key={idx}>
+                {compteResultat.charges && compteResultat.charges.map((charge) => (
+                  <tr key={`charge-${charge.compte}-${charge.libelle}`}>
                     <td style={{ border: '1px solid #ddd', padding: 8 }}>{charge.compte}</td>
                     <td style={{ border: '1px solid #ddd', padding: 8 }}>{charge.libelle}</td>
                     <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
@@ -112,8 +113,8 @@ export default function CompteResultat() {
                 </tr>
               </thead>
               <tbody>
-                {compteResultat.produits && compteResultat.produits.map((produit, idx) => (
-                  <tr key={idx}>
+                {compteResultat.produits && compteResultat.produits.map((produit) => (
+                  <tr key={`produit-${produit.compte}-${produit.libelle}`}>
                     <td style={{ border: '1px solid #ddd', padding: 8 }}>{produit.compte}</td>
                     <td style={{ border: '1px solid #ddd', padding: 8 }}>{produit.libelle}</td>
                     <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
