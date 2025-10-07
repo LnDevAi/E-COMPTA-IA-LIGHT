@@ -25,11 +25,11 @@ Le fichier `render.yaml` à la racine du projet permet un déploiement automatiq
    - Sélectionner le repository E-COMPTA-IA-LIGHT
 
 2. **Services créés automatiquement**
-   - `ecompta-backend` : Service Web backend (Dockerfile.backend)
-   - `ecompta-frontend` : Service Web frontend (frontend-app/Dockerfile)
-   - `postgres` : Base de données PostgreSQL (plan: free)
+   - `ecompta-backend` : Service Web backend (Dockerfile.backend) - plan: free
+   - `ecompta-frontend` : Service Web frontend (frontend-app/Dockerfile) - plan: free
+   - `postgres` : Base de données PostgreSQL - plan: free
    
-   **Note importante**: Le plan "starter" pour les bases de données PostgreSQL n'est plus supporté par Render. Le fichier `render.yaml` utilise maintenant le plan "free" qui est le niveau gratuit actuel.
+   **Note importante**: Le plan "starter" n'est plus supporté par Render, ni pour les bases de données PostgreSQL ni pour les services web. Le fichier `render.yaml` utilise maintenant le plan "free" qui est le niveau gratuit actuel pour tous les services.
 
 3. **Variables d'environnement configurées automatiquement**
    - `SPRING_PROFILES_ACTIVE=prod`
@@ -53,7 +53,7 @@ Si vous préférez configurer manuellement :
 3. Name: `ecompta-backend`
 4. Environment: Docker
 5. Dockerfile path: `./Dockerfile.backend`
-6. Instance type: Starter
+6. Instance type: Free (Note: "Starter" plan is deprecated)
 7. Add environment variables:
    - `SPRING_PROFILES_ACTIVE=prod`
    - `JWT_SECRET=<generate-strong-secret>`
@@ -66,7 +66,7 @@ Si vous préférez configurer manuellement :
 3. Name: `ecompta-frontend`
 4. Environment: Docker
 5. Dockerfile path: `./frontend-app/Dockerfile`
-6. Instance type: Starter
+6. Instance type: Free (Note: "Starter" plan is deprecated)
 7. Add environment variable:
    - `REACT_APP_API_URL=https://ecompta-backend.onrender.com`
 
