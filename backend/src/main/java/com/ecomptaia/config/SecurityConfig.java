@@ -38,6 +38,8 @@ public class SecurityConfig {
                         "/webjars/**",
                         "/api/auth/**",
                         "/api/test/**",
+                        "/actuator/health",
+                        "/actuator/info",
                         "/h2-console/**"
                     ).permitAll()
                     .anyRequest().authenticated()

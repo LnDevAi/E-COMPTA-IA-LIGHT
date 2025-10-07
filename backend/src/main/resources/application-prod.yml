@@ -5,6 +5,12 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${SPRING_DATASOURCE_USERNAME:ecomptaia}
     password: ${SPRING_DATASOURCE_PASSWORD:}
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 600000
+      max-lifetime: 1800000
   
   h2:
     console:
@@ -28,6 +34,20 @@ server:
   error:
     include-message: always
     include-binding-errors: always
+
+# Actuator configuration for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    defaults:
+      enabled: true
 
 logging:
   level:
