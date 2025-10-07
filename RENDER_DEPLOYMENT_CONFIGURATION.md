@@ -2,15 +2,25 @@
 
 ## Overview
 
-This guide explains the production-ready configuration for deploying E-COMPTA-IA-LIGHT on Render.
+This guide explains the production-ready configuration for deploying E-COMPTA-IA-LIGHT on Render using Docker containers for both frontend and backend services.
 
 ## Architecture
 
 The application is deployed as two separate services on Render:
 
-1. **Backend Service** (Java/Spring Boot) - ecompta-backend
-2. **Frontend Service** (Static React App) - ecompta-frontend
-3. **PostgreSQL Database** - ecompta-db
+1. **Backend Service** (Docker/Spring Boot) - ecompta-backend
+2. **Frontend Service** (Docker/React + Nginx) - ecompta-frontend
+3. **PostgreSQL Database** - postgres
+
+## Why Docker on Render?
+
+After testing, we've determined that Docker-based deployment is the most reliable approach for Render's free tier:
+
+- ✅ **Consistent environment** across development and production
+- ✅ **Better compatibility** with Render's free tier
+- ✅ **Proven stability** for both Java and Node.js applications
+- ✅ **Multi-stage builds** for optimized image sizes
+- ✅ **Health check support** via actuator endpoints
 
 ## Configuration Files
 
@@ -19,13 +29,23 @@ The application is deployed as two separate services on Render:
 The `render.yaml` file in the project root contains the complete configuration for automatic deployment via Render Blueprint.
 
 **Key Features:**
-- Java environment for backend (not Docker)
-- Static site for frontend (not Docker)
+- Docker-based deployment for both services
 - Automatic database connection setup
 - Health checks enabled
 - Free tier configuration
 
 ### 2. Backend Configuration
+
+#### Dockerfile.backend
+
+**Multi-stage build:**
+1. **Build stage**: Uses Maven to compile with production profile
+2. **Runtime stage**: Lightweight JRE-only image
+
+**Features:**
+- Production profile activated (`-Pprod`)
+- Dynamic port binding from Render's `$PORT` variable
+- Spring Boot profile set to `prod`
 
 #### Application Configuration (`backend/src/main/resources/application-prod.yml`)
 
@@ -54,18 +74,18 @@ The `render.yaml` file in the project root contains the complete configuration f
 - `/actuator/info` - Public info endpoint
 - `/api/auth/**` - Public authentication endpoints
 
-#### Maven Configuration (`pom.xml`)
-
-**Production Profile:**
-```bash
-mvn clean package -DskipTests -Pprod
-```
-
-**Dependencies Added:**
-- `spring-boot-starter-actuator` - Health monitoring
-- HikariCP (included in Spring Boot starter)
-
 ### 3. Frontend Configuration
+
+#### Dockerfile (frontend-app/Dockerfile)
+
+**Multi-stage build:**
+1. **Build stage**: Compiles React application with npm
+2. **Runtime stage**: Nginx serving static files
+
+**Features:**
+- Nginx configured for SPA routing (`try_files`)
+- Environment variable support for API URL
+- Optimized Alpine-based images
 
 #### Package Configuration (`frontend-app/package.json`)
 
@@ -79,14 +99,6 @@ REACT_APP_API_URL=https://ecompta-backend.onrender.com
 ```
 
 This ensures the frontend connects to the correct backend service.
-
-#### SPA Routing (`frontend-app/public/_redirects`)
-
-```
-/* /index.html 200
-```
-
-This file enables client-side routing for the React application on Render's static hosting.
 
 #### HTML Metadata (`frontend-app/public/index.html`)
 
@@ -107,8 +119,8 @@ Updated with:
    - Select the branch
 3. Render will automatically:
    - Create the database
-   - Deploy the backend
-   - Deploy the frontend
+   - Build and deploy the backend Docker image
+   - Build and deploy the frontend Docker image
    - Link all services together
 
 ### Manual Deployment (Alternative)
@@ -116,23 +128,23 @@ Updated with:
 If you prefer manual setup:
 
 #### Database
-1. Create PostgreSQL database: "ecompta-db"
+1. Create PostgreSQL database: "postgres"
 2. Note the connection details
 
 #### Backend Service
 1. New Web Service
-2. Environment: Java
-3. Build Command: `cd backend && mvn clean package -DskipTests -Pprod`
-4. Start Command: `cd backend && java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/*.jar`
-5. Add environment variables (see render.yaml for complete list)
-6. Link to database
+2. Environment: Docker
+3. Dockerfile Path: `./Dockerfile.backend`
+4. Add environment variables (see render.yaml for complete list)
+5. Link to database
+6. Health Check Path: `/actuator/health`
 
 #### Frontend Service
-1. New Static Site
-2. Build Command: `cd frontend-app && npm install && npm run build`
-3. Publish Directory: `frontend-app/build`
-4. Add environment variable: `REACT_APP_API_URL=https://ecompta-backend.onrender.com`
-5. Rewrite rules are handled by `_redirects` file
+1. New Web Service
+2. Environment: Docker
+3. Dockerfile Path: `./frontend-app/Dockerfile`
+4. Docker Context: `./frontend-app`
+5. Add environment variable: `REACT_APP_API_URL=https://ecompta-backend.onrender.com`
 
 ## Health Monitoring
 
@@ -168,15 +180,24 @@ npm run build
 **Expected Output:**
 - Compiled successfully
 - Build folder created with optimized assets
-- `_redirects` file included in build
 - Assets use relative paths (./static/...)
+
+### Docker Build Test
+
+```bash
+# Backend
+docker build -f Dockerfile.backend -t backend-test .
+
+# Frontend
+docker build -f frontend-app/Dockerfile -t frontend-test ./frontend-app
+```
 
 ## Troubleshooting
 
 ### Frontend Shows Blank Page
 
 **Check:**
-1. Build logs for errors
+1. Nginx configuration for SPA routing
 2. Browser console for API connection errors
 3. CORS configuration in backend
 4. `REACT_APP_API_URL` environment variable
@@ -184,10 +205,10 @@ npm run build
 ### Backend Deployment Fails
 
 **Check:**
-1. Build logs for compilation errors
+1. Docker build logs for compilation errors
 2. Database connection environment variables
 3. `JWT_SECRET` is set
-4. Maven build completes successfully
+4. Maven build completes successfully with `-Pprod` profile
 
 ### Database Connection Issues
 
@@ -203,20 +224,22 @@ npm run build
 1. `/actuator/health` endpoint is accessible
 2. Security configuration allows public access
 3. Backend is fully started (check logs)
+4. Docker container is running
 
 ## Performance Optimization
 
 ### Backend
+- Multi-stage Docker build reduces image size
 - HikariCP connection pooling (max 10 connections)
-- JVM heap size: -Xmx512m -Xms256m
-- Connection timeout: 30 seconds
-- Idle timeout: 10 minutes
+- JVM optimizations in Docker entrypoint
+- Production profile with optimized settings
 
 ### Frontend
+- Multi-stage Docker build
+- Nginx serving static files (fast)
 - Gzipped assets
 - Code splitting with lazy loading
 - Optimized production build
-- Static asset caching
 
 ## Security Considerations
 
@@ -226,6 +249,7 @@ npm run build
 4. **HTTPS**: Enforced by Render
 5. **Database**: Isolated within Render network
 6. **Environment Variables**: Stored securely by Render
+7. **Docker Images**: Based on official images only
 
 ## Support
 
@@ -233,6 +257,7 @@ For issues specific to:
 - **Render Platform**: Check Render's status page and documentation
 - **Application Code**: Check application logs in Render dashboard
 - **Database**: Monitor slow queries in Render database dashboard
+- **Docker Builds**: Check build logs in Render dashboard
 
 ## Next Steps
 
@@ -255,5 +280,6 @@ After deployment, your services will be available at:
 
 ---
 
-**Last Updated**: October 2025
-**Configuration Version**: 2.0.0
+**Last Updated**: October 2025  
+**Configuration Version**: 2.1.0 (Docker-based)  
+**Status**: ✅ Production Ready
