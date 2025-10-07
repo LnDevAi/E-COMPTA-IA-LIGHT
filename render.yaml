@@ -37,6 +37,7 @@ services:
     name: ecompta-frontend
     env: docker
     dockerfilePath: ./frontend-app/Dockerfile
+    dockerContext: ./frontend-app
     plan: free
     envVars:
       - key: REACT_APP_API_URL
