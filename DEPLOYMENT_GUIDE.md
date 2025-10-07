@@ -133,10 +133,75 @@ frontend: cd frontend-app && npm run build && npx serve -s build
 
 ## DigitalOcean App Platform
 
-Add two components
+### Déploiement automatique via .do/app.yaml (Recommandé)
 
-- Backend: Dockerfile.backend, port 8080
-- Frontend: frontend-app/Dockerfile, port 80
+Le fichier `.do/app.yaml` à la racine du projet permet un déploiement automatique complet :
+
+1. **Connecter le repository à DigitalOcean**
+   - Aller sur https://cloud.digitalocean.com/apps
+   - Cliquer sur "Create App"
+   - Connecter votre repository GitHub
+   - Sélectionner le repository E-COMPTA-IA-LIGHT
+   - DigitalOcean détectera automatiquement `.do/app.yaml`
+
+2. **Services créés automatiquement**
+   - `backend` : Service Docker backend (Dockerfile.backend, port 8080)
+   - `frontend` : Service Docker frontend (frontend-app/Dockerfile, port 80)
+   - `db` : Base de données PostgreSQL
+
+3. **Variables d'environnement configurées automatiquement**
+   - `SPRING_PROFILES_ACTIVE=prod`
+   - `JWT_SECRET` : À définir manuellement dans le dashboard (type SECRET)
+   - `JWT_EXPIRATION=86400000`
+   - Connexion PostgreSQL configurée automatiquement
+   - `REACT_APP_API_URL` : Pointe automatiquement vers le backend
+
+4. **Configuration JWT_SECRET**
+   - Dans le dashboard, trouver la variable JWT_SECRET
+   - Générer une clé sécurisée:
+     ```bash
+     openssl rand -base64 32
+     ```
+   - Copier/coller la valeur générée
+
+5. **Déploiement continu**
+   - Chaque push sur `main` déclenche un déploiement automatique
+   - Les builds Docker se font sur l'infrastructure DigitalOcean
+
+### Configuration manuelle (alternative)
+
+Si vous préférez configurer manuellement :
+
+#### Backend
+1. Create App → Docker Service
+2. Connect repository
+3. Name: `backend`
+4. Dockerfile: `./Dockerfile.backend`
+5. HTTP Port: 8080
+6. Instance: Basic ($5/mois)
+7. Add environment variables:
+   - `SPRING_PROFILES_ACTIVE=prod`
+   - `JWT_SECRET=<generate-strong-secret>`
+   - `JWT_EXPIRATION=86400000`
+   - Connect to PostgreSQL database
+
+#### Frontend
+1. Create App → Docker Service
+2. Connect repository
+3. Name: `frontend`
+4. Dockerfile: `./frontend-app/Dockerfile`
+5. HTTP Port: 80
+6. Instance: Basic ($5/mois)
+7. Add environment variable:
+   - `REACT_APP_API_URL=https://backend-xxxxx.ondigitalocean.app`
+
+#### Database
+1. Add PostgreSQL Database
+2. Engine: PostgreSQL 14+
+3. Cluster: Dev ($7/mois) or Production ($15/mois)
+4. Link to backend service
+
+**Pour plus de détails**: Voir `DIGITALOCEAN_DEPLOYMENT.md`
 
 [...existing code...]
 

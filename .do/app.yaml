@@ -1,0 +1,107 @@
+# DigitalOcean App Platform Configuration
+# E-COMPTA-IA-LIGHT
+#
+# This file enables automatic deployment via DigitalOcean App Platform
+# Similar to render.yaml for Render.com
+
+name: e-compta-ia-light
+
+# Backend Service (Spring Boot)
+services:
+  - name: backend
+    # Use Docker build from Dockerfile.backend
+    dockerfile_path: Dockerfile.backend
+    source_dir: /
+    github:
+      branch: main
+      deploy_on_push: true
+    
+    # Health check configuration
+    health_check:
+      http_path: /actuator/health
+      initial_delay_seconds: 60
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+    
+    # HTTP port configuration
+    http_port: 8080
+    
+    # Instance configuration
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    
+    # Environment variables
+    envs:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+        
+      - key: JWT_SECRET
+        type: SECRET
+        # Generate a secure random value in DO dashboard
+        
+      - key: JWT_EXPIRATION
+        value: "86400000"
+        
+      # Database connection from database component
+      - key: SPRING_DATASOURCE_URL
+        value: ${db.DATABASE_URL}
+        
+      - key: SPRING_DATASOURCE_USERNAME
+        value: ${db.USERNAME}
+        
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: ${db.PASSWORD}
+        
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+        
+      - key: SPRING_JPA_DATABASE_PLATFORM
+        value: org.hibernate.dialect.PostgreSQLDialect
+        
+      - key: PORT
+        value: "8080"
+
+  # Frontend Service (React + Nginx)
+  - name: frontend
+    # Use Docker build from frontend-app/Dockerfile
+    dockerfile_path: frontend-app/Dockerfile
+    source_dir: /
+    github:
+      branch: main
+      deploy_on_push: true
+    
+    # HTTP port configuration
+    http_port: 80
+    
+    # Instance configuration
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    
+    # Build-time environment variable for API URL
+    envs:
+      - key: REACT_APP_API_URL
+        value: ${backend.PUBLIC_URL}
+    
+    # Routes configuration
+    routes:
+      - path: /
+
+# Database
+databases:
+  - name: db
+    engine: PG
+    version: "14"
+    production: false
+    # Start with dev database, upgrade to production later
+    
+# Region
+region: nyc
+
+# Notes:
+# 1. JWT_SECRET must be set as a SECRET in DigitalOcean App Platform dashboard
+# 2. Database credentials are automatically injected via ${db.*} variables
+# 3. Frontend API URL is automatically set to backend's public URL
+# 4. Both services deploy automatically on push to main branch
+# 5. Health checks ensure backend is ready before routing traffic

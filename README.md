@@ -19,12 +19,16 @@ Plateforme comptable légère avec Intelligence Artificielle et intégrations ti
 
 ## 🚀 Déploiement Cloud
 
-### Guides de Déploiement Disponibles
+### 📊 Analyse Complète
+- **🔍 [Analyse Issues et Déploiements](ANALYSE_ISSUES_ET_DEPLOIEMENTS.md)** - ⭐ **NOUVEAU** - Analyse complète des issues ouvertes et état des déploiements
 
-- **📘 [Guide Complet de Déploiement (Français)](GUIDE_DEPLOIEMENT_CORRECTIONS.md)** - Guide détaillé avec toutes les corrections
-- **🔧 [Railway Deployment Guide](RAILWAY_DEPLOYMENT.md)** - Déploiement sur Railway avec troubleshooting
-- **🌐 [Render Troubleshooting](RENDER_TROUBLESHOOTING.md)** - Guide de dépannage pour Render
-- **📋 [Corrections PR#2](CORRECTIONS_PR2.md)** - Historique des corrections
+### Guides de Déploiement par Plateforme
+
+- **🌐 [Render.com](RENDER_TROUBLESHOOTING.md)** - Déploiement Blueprint automatique (recommandé pour simplicité)
+- **🚂 [Railway.app](RAILWAY_DEPLOYMENT.md)** - Déploiement avec nixpacks (recommandé pour démarrage rapide)
+- **🌊 [DigitalOcean App Platform](DIGITALOCEAN_DEPLOYMENT.md)** - ⭐ **NOUVEAU** - Déploiement avec monitoring intégré
+- **📋 [Guide Multi-Plateformes](DEPLOYMENT_GUIDE.md)** - Guide général pour toutes les plateformes
+- **📘 [Guide Complet (Français)](GUIDE_DEPLOIEMENT_CORRECTIONS.md)** - Guide détaillé avec toutes les corrections
 
 ### CI/CD et Validation
 
@@ -37,15 +41,24 @@ Plateforme comptable légère avec Intelligence Artificielle et intégrations ti
 
 ### Déploiement Rapide
 
-**Railway** (recommandé pour démarrage rapide) :
+**Render.com** (⭐ Plus simple - Blueprint automatique) :
+1. Dashboard Render → New Blueprint
+2. Connecter le repository GitHub
+3. Render lit `render.yaml` et déploie tout automatiquement
+4. JWT_SECRET généré automatiquement
+
+**Railway.app** (⚡ Plus rapide - Démarrage instantané) :
 1. Connecter le dépôt à Railway
 2. Définir `JWT_SECRET` dans les variables d'environnement
-3. Déployer automatiquement avec nixpacks
+3. Deploy automatique avec `nixpacks.toml`
+4. Frontend intégré dans backend
 
-**Render** (recommandé pour production) :
-1. Utiliser le Blueprint : `render.yaml`
-2. Backend + Frontend + PostgreSQL déployés automatiquement
-3. Variables d'environnement configurées automatiquement
+**DigitalOcean App Platform** (🎯 Plus complet - Monitoring intégré) :
+1. Dashboard DO → Create App
+2. Connecter le repository GitHub
+3. DigitalOcean lit `.do/app.yaml`
+4. Générer JWT_SECRET manuellement
+5. Monitoring et métriques inclus
 
 ### ✅ Corrections Post-Déploiement Appliquées
 

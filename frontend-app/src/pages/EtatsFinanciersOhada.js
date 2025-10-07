@@ -1,322 +1,323 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useTranslation } from 'react-i18next';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  CircularProgress,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  MenuItem,
+  Grid,
+} from '@mui/material';
 import apiClient from '../config/api';
+import { etatsFinanciersOhadaSchema } from '../validation/schemas';
 
 export default function EtatsFinanciersOhada() {
+  const { t } = useTranslation();
   const [entreprises, setEntreprises] = useState([]);
-  const [selectedEntreprise, setSelectedEntreprise] = useState(null);
-  const [exercice, setExercice] = useState('');
   const [etats, setEtats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const { control, handleSubmit, formState: { errors }, watch } = useForm({
+    resolver: yupResolver(etatsFinanciersOhadaSchema),
+    defaultValues: {
+      entrepriseId: '',
+      exercice: ''
+    }
+  });
+
+  const entrepriseId = watch('entrepriseId');
+  const exercice = watch('exercice');
+
   useEffect(() => {
+    const loadEntreprises = async () => {
+      try {
+        const response = await apiClient.get('/api/entreprises');
+        setEntreprises(response.data);
+      } catch (err) {
+        console.error('Error loading companies:', err);
+        setError(t('ohadaFinancialStatements.errors.loadCompaniesError'));
+      }
+    };
+    
     loadEntreprises();
-  }, []);
+  }, [t]);
 
-  const loadEntreprises = async () => {
-    try {
-      const response = await apiClient.get('/api/entreprises');
-      setEntreprises(response.data);
-    } catch (err) {
-      console.error('Erreur lors du chargement des entreprises:', err);
-      setError('Erreur lors du chargement des entreprises');
-    }
-  };
-
-  const handleGenerer = useCallback(async () => {
-    if (!selectedEntreprise || !exercice) {
-      setError('Veuillez sélectionner une entreprise et saisir l\'exercice');
-      return;
-    }
-
+  const onSubmit = async (data) => {
+    const selectedEntreprise = entreprises.find(ent => ent.id === data.entrepriseId);
+    
     setLoading(true);
     setError('');
     try {
       const response = await apiClient.post('/api/etats-financiers-ohada/generer', 
         selectedEntreprise,
-        { params: { exercice } }
+        { params: { exercice: data.exercice } }
       );
       setEtats(response.data);
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.response?.data || err.message;
-      setError(`Erreur lors de la génération des états financiers : ${errorMessage}`);
+      setError(t('ohadaFinancialStatements.errors.generationError', { message: errorMessage }));
     } finally {
       setLoading(false);
     }
-  }, [selectedEntreprise, exercice]);
+  };
+
+  const selectedEntreprise = entreprises.find(ent => ent.id === entrepriseId);
 
   return (
-    <div>
-      <h1>États Financiers OHADA</h1>
-      <p style={{ marginBottom: 20, color: '#666' }}>
-        Génération des états financiers conformes au référentiel OHADA
-      </p>
+    <Box>
+      <Typography variant="h4" component="h1" gutterBottom>
+        {t('ohadaFinancialStatements.title')}
+      </Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        {t('ohadaFinancialStatements.subtitle')}
+      </Typography>
 
-      <div style={{ marginBottom: 20, padding: 15, background: '#f8f9fa', borderRadius: 4 }}>
-        <div style={{ marginBottom: 10 }}>
-          <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>
-            Entreprise:
-          </label>
-          <select
-            value={selectedEntreprise?.id || ''}
-            onChange={(e) => {
-              const entreprise = entreprises.find(ent => ent.id === e.target.value);
-              setSelectedEntreprise(entreprise);
-            }}
-            style={{ width: '100%', padding: 8, fontSize: 14 }}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Controller
+              name="entrepriseId"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  label={t('ohadaFinancialStatements.company')}
+                  error={!!errors.entrepriseId}
+                  helperText={errors.entrepriseId ? t(errors.entrepriseId.message) : ''}
+                  fullWidth
+                >
+                  <MenuItem value="">
+                    {t('ohadaFinancialStatements.selectCompany')}
+                  </MenuItem>
+                  {entreprises.map(ent => (
+                    <MenuItem key={ent.id} value={ent.id}>
+                      {ent.nom} - {ent.typeOhada || 'N/A'}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
+            <Controller
+              name="exercice"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label={t('ohadaFinancialStatements.fiscalYear')}
+                  placeholder={t('ohadaFinancialStatements.fiscalYearPlaceholder')}
+                  error={!!errors.exercice}
+                  helperText={errors.exercice ? t(errors.exercice.message) : ''}
+                  fullWidth
+                />
+              )}
+            />
+          </Box>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={loading}
+            startIcon={loading && <CircularProgress size={20} />}
+            sx={{ mt: 2 }}
           >
-            <option value="">-- Sélectionner une entreprise --</option>
-            {entreprises.map(ent => (
-              <option key={ent.id} value={ent.id}>
-                {ent.nom} - {ent.typeOhada || 'N/A'}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ marginBottom: 10 }}>
-          <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>
-            Exercice (ex: 2024):
-          </label>
-          <input
-            type="text"
-            value={exercice}
-            onChange={(e) => setExercice(e.target.value)}
-            placeholder="2024"
-            style={{ width: '100%', padding: 8, fontSize: 14 }}
-          />
-        </div>
-
-        <button 
-          onClick={handleGenerer} 
-          disabled={loading || !selectedEntreprise || !exercice}
-          style={{ 
-            padding: '10px 20px', 
-            background: '#007bff', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: 4,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: (loading || !selectedEntreprise || !exercice) ? 0.6 : 1
-          }}
-        >
-          {loading ? 'Génération en cours...' : 'Générer les États Financiers OHADA'}
-        </button>
-      </div>
+            {loading ? t('ohadaFinancialStatements.generating') : t('ohadaFinancialStatements.generate')}
+          </Button>
+        </form>
+      </Paper>
 
       {error && (
-        <div style={{ 
-          color: 'red', 
-          marginBottom: 20, 
-          padding: 15, 
-          background: '#ffe6e6', 
-          borderRadius: 4,
-          border: '1px solid #ffcccc'
-        }}>
+        <Alert severity="error" sx={{ mb: 3 }}>
           {error}
-        </div>
+        </Alert>
       )}
 
       {etats && (
-        <div style={{ marginTop: 30 }}>
-          <h2>États Financiers Générés</h2>
-          <p style={{ marginBottom: 20, color: '#666' }}>
-            Exercice: {etats.exercice} | Type: {etats.typeEtat || 'N/A'}
-          </p>
+        <Box>
+          <Typography variant="h5" component="h2" gutterBottom>
+            {t('ohadaFinancialStatements.title')}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            {t('ohadaFinancialStatements.fiscalYear')}: {etats.exercice} | Type: {etats.typeEtat || 'N/A'}
+          </Typography>
 
           {/* Bilan OHADA */}
           {etats.bilan && (
-            <div style={{ marginBottom: 30 }}>
-              <h3 style={{ 
-                background: '#007bff', 
-                color: 'white', 
-                padding: 10, 
-                borderRadius: '4px 4px 0 0' 
-              }}>
-                Bilan OHADA
-              </h3>
-              <div style={{ border: '1px solid #ddd', padding: 15 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <Paper sx={{ mb: 3 }}>
+              <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 1.5 }}>
+                <Typography variant="h6">
+                  {t('ohadaFinancialStatements.balanceSheet')}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 2 }}>
+                <Grid container spacing={3}>
                   {/* Actif */}
-                  <div>
-                    <h4>ACTIF</h4>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                      <thead>
-                        <tr style={{ background: '#f0f0f0' }}>
-                          <th style={{ border: '1px solid #ddd', padding: 6, textAlign: 'left' }}>
-                            Poste
-                          </th>
-                          <th style={{ border: '1px solid #ddd', padding: 6, textAlign: 'right' }}>
-                            Montant
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {etats.bilan.actif && etats.bilan.actif.map((item) => (
-                          <tr key={`actif-${item.libelle}`}>
-                            <td style={{ border: '1px solid #ddd', padding: 6 }}>
-                              {item.libelle}
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: 6, textAlign: 'right' }}>
-                              {item.montant?.toFixed(2)}
-                            </td>
-                          </tr>
-                        ))}
-                        <tr style={{ fontWeight: 'bold', background: '#f8f9fa' }}>
-                          <td style={{ border: '1px solid #ddd', padding: 6 }}>
-                            Total Actif
-                          </td>
-                          <td style={{ border: '1px solid #ddd', padding: 6, textAlign: 'right' }}>
-                            {etats.bilan.totalActif?.toFixed(2)}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+                      {t('ohadaFinancialStatements.assets')}
+                    </Typography>
+                    <TableContainer>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Poste</TableCell>
+                            <TableCell align="right">Montant</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {etats.bilan.actif && etats.bilan.actif.map((item, index) => (
+                            <TableRow key={`actif-${index}`}>
+                              <TableCell>{item.libelle}</TableCell>
+                              <TableCell align="right">
+                                {item.montant?.toFixed(2)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          <TableRow sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>
+                            <TableCell>Total Actif</TableCell>
+                            <TableCell align="right">
+                              {etats.bilan.totalActif?.toFixed(2)}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Grid>
 
                   {/* Passif */}
-                  <div>
-                    <h4>PASSIF</h4>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                      <thead>
-                        <tr style={{ background: '#f0f0f0' }}>
-                          <th style={{ border: '1px solid #ddd', padding: 6, textAlign: 'left' }}>
-                            Poste
-                          </th>
-                          <th style={{ border: '1px solid #ddd', padding: 6, textAlign: 'right' }}>
-                            Montant
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {etats.bilan.passif && etats.bilan.passif.map((item) => (
-                          <tr key={`passif-${item.libelle}`}>
-                            <td style={{ border: '1px solid #ddd', padding: 6 }}>
-                              {item.libelle}
-                            </td>
-                            <td style={{ border: '1px solid #ddd', padding: 6, textAlign: 'right' }}>
-                              {item.montant?.toFixed(2)}
-                            </td>
-                          </tr>
-                        ))}
-                        <tr style={{ fontWeight: 'bold', background: '#f8f9fa' }}>
-                          <td style={{ border: '1px solid #ddd', padding: 6 }}>
-                            Total Passif
-                          </td>
-                          <td style={{ border: '1px solid #ddd', padding: 6, textAlign: 'right' }}>
-                            {etats.bilan.totalPassif?.toFixed(2)}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+                      {t('ohadaFinancialStatements.liabilities')}
+                    </Typography>
+                    <TableContainer>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Poste</TableCell>
+                            <TableCell align="right">Montant</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {etats.bilan.passif && etats.bilan.passif.map((item, index) => (
+                            <TableRow key={`passif-${index}`}>
+                              <TableCell>{item.libelle}</TableCell>
+                              <TableCell align="right">
+                                {item.montant?.toFixed(2)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          <TableRow sx={{ fontWeight: 'bold', bgcolor: 'grey.100' }}>
+                            <TableCell>Total Passif</TableCell>
+                            <TableCell align="right">
+                              {etats.bilan.totalPassif?.toFixed(2)}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Paper>
           )}
 
           {/* Compte de Résultat OHADA */}
           {etats.compteResultat && (
-            <div style={{ marginBottom: 30 }}>
-              <h3 style={{ 
-                background: '#28a745', 
-                color: 'white', 
-                padding: 10, 
-                borderRadius: '4px 4px 0 0' 
-              }}>
-                Compte de Résultat OHADA
-              </h3>
-              <div style={{ border: '1px solid #ddd', padding: 15 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                  <thead>
-                    <tr style={{ background: '#f0f0f0' }}>
-                      <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left' }}>
-                        Rubrique
-                      </th>
-                      <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                        Montant
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {etats.compteResultat.lignes && etats.compteResultat.lignes.map((ligne) => (
-                      <tr key={`cr-ligne-${ligne.libelle}`}>
-                        <td style={{ border: '1px solid #ddd', padding: 8 }}>
-                          {ligne.libelle}
-                        </td>
-                        <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                          {ligne.montant?.toFixed(2)}
-                        </td>
-                      </tr>
-                    ))}
-                    <tr style={{ fontWeight: 'bold', background: '#e8f4f8' }}>
-                      <td style={{ border: '1px solid #ddd', padding: 8 }}>
-                        Résultat Net
-                      </td>
-                      <td style={{ 
-                        border: '1px solid #ddd', 
-                        padding: 8, 
-                        textAlign: 'right',
-                        color: etats.compteResultat.resultatNet >= 0 ? 'green' : 'red',
-                        fontWeight: 'bold'
-                      }}>
-                        {etats.compteResultat.resultatNet?.toFixed(2)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <Paper sx={{ mb: 3 }}>
+              <Box sx={{ bgcolor: 'success.main', color: 'white', p: 1.5 }}>
+                <Typography variant="h6">
+                  {t('ohadaFinancialStatements.incomeStatement')}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 2 }}>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Rubrique</TableCell>
+                        <TableCell align="right">Montant</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {etats.compteResultat.lignes && etats.compteResultat.lignes.map((ligne, index) => (
+                        <TableRow key={`cr-ligne-${index}`}>
+                          <TableCell>{ligne.libelle}</TableCell>
+                          <TableCell align="right">
+                            {ligne.montant?.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow sx={{ fontWeight: 'bold', bgcolor: 'info.lighter' }}>
+                        <TableCell>Résultat Net</TableCell>
+                        <TableCell 
+                          align="right"
+                          sx={{ 
+                            color: etats.compteResultat.resultatNet >= 0 ? 'success.main' : 'error.main',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {etats.compteResultat.resultatNet?.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            </Paper>
           )}
 
           {/* Tableau des Flux de Trésorerie */}
           {etats.tableauFlux && (
-            <div style={{ marginBottom: 30 }}>
-              <h3 style={{ 
-                background: '#17a2b8', 
-                color: 'white', 
-                padding: 10, 
-                borderRadius: '4px 4px 0 0' 
-              }}>
-                Tableau des Flux de Trésorerie
-              </h3>
-              <div style={{ border: '1px solid #ddd', padding: 15 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                  <tbody>
-                    {etats.tableauFlux.lignes && etats.tableauFlux.lignes.map((ligne) => (
-                      <tr key={`flux-${ligne.libelle}`}>
-                        <td style={{ border: '1px solid #ddd', padding: 8 }}>
-                          {ligne.libelle}
-                        </td>
-                        <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'right' }}>
-                          {ligne.montant?.toFixed(2)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <Paper sx={{ mb: 3 }}>
+              <Box sx={{ bgcolor: 'info.main', color: 'white', p: 1.5 }}>
+                <Typography variant="h6">
+                  {t('ohadaFinancialStatements.cashFlow')}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 2 }}>
+                <TableContainer>
+                  <Table size="small">
+                    <TableBody>
+                      {etats.tableauFlux.lignes && etats.tableauFlux.lignes.map((ligne, index) => (
+                        <TableRow key={`flux-${index}`}>
+                          <TableCell>{ligne.libelle}</TableCell>
+                          <TableCell align="right">
+                            {ligne.montant?.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            </Paper>
           )}
 
           {/* Informations complémentaires */}
-          <div style={{ 
-            marginTop: 30, 
-            padding: 15, 
-            background: '#f8f9fa', 
-            borderRadius: 4,
-            fontSize: 13
-          }}>
-            <h4>Informations</h4>
-            <ul>
+          <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+            <Typography variant="h6" gutterBottom>
+              Informations
+            </Typography>
+            <Box component="ul" sx={{ fontSize: '0.875rem' }}>
               <li>Type d'entreprise: {selectedEntreprise?.typeOhada || 'N/A'}</li>
               <li>Système comptable: OHADA</li>
-              <li>Exercice: {etats.exercice}</li>
+              <li>{t('ohadaFinancialStatements.fiscalYear')}: {etats.exercice}</li>
               <li>Date de génération: {new Date().toLocaleDateString()}</li>
-            </ul>
-          </div>
-        </div>
+            </Box>
+          </Paper>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }

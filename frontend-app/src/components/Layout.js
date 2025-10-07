@@ -1,48 +1,180 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import {
+  Box,
+  Drawer,
+  AppBar,
+  Toolbar,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  ListSubheader,
+  Button,
+  Container,
+} from '@mui/material';
 import { logout } from '../utils/auth';
+import LanguageSwitcher from './LanguageSwitcher';
 
-const Layout = ({ children }) => (
-  <div style={{ display: 'flex', minHeight: '100vh' }}>
-    <aside style={{ width: 240, background: '#2c3e50', color: '#fff', padding: '2rem 1rem', overflowY: 'auto' }}>
-      <h2 style={{ color: '#ecf0f1', fontSize: 22, marginBottom: 30 }}>E-COMPTA IA</h2>
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <Link to="/" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4, transition: 'background 0.2s' }}>Dashboard</Link>
-        
-        <div style={{ marginTop: 16, marginBottom: 8, fontSize: 12, color: '#95a5a6', textTransform: 'uppercase', fontWeight: 'bold', paddingLeft: 12 }}>Base</div>
-        <Link to="/comptes" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Comptes</Link>
-        <Link to="/ecritures" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Écritures</Link>
-        <Link to="/entreprises" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Entreprises</Link>
-        <Link to="/journaux" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Journaux</Link>
-        <Link to="/systemes-comptables" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Systèmes comptables</Link>
-        <Link to="/plan-comptable" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Plan comptable</Link>
-        
-        <div style={{ marginTop: 16, marginBottom: 8, fontSize: 12, color: '#95a5a6', textTransform: 'uppercase', fontWeight: 'bold', paddingLeft: 12 }}>États Financiers</div>
-        <Link to="/balance" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Balance</Link>
-        <Link to="/grand-livre" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Grand Livre</Link>
-        <Link to="/bilan" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Bilan</Link>
-        <Link to="/compte-resultat" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Compte de Résultat</Link>
-        <Link to="/notes-annexes" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Notes Annexes</Link>
-        <Link to="/etats-financiers-ohada" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>États Financiers OHADA</Link>
-        
-        <div style={{ marginTop: 16, marginBottom: 8, fontSize: 12, color: '#95a5a6', textTransform: 'uppercase', fontWeight: 'bold', paddingLeft: 12 }}>Modules IA</div>
-        <Link to="/ged" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>GED - Documents</Link>
-        <Link to="/iaec/TEST" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>IAEC - Assistant IA</Link>
-        <Link to="/sycebnl" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>SYCEBNL</Link>
-        
-        <div style={{ marginTop: 16, marginBottom: 8, fontSize: 12, color: '#95a5a6', textTransform: 'uppercase', fontWeight: 'bold', paddingLeft: 12 }}>Utilisateur</div>
-        <Link to="/inscription" style={{ color: '#fff', textDecoration: 'none', padding: '8px 12px', borderRadius: 4 }}>Inscription</Link>
-      </nav>
-    </aside>
-    <main style={{ flex: 1, background: '#f8f9fa', padding: '2rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 20 }}>
-        <Link to="/login" style={{ marginRight: 10 }}>Connexion</Link>
-        <Link to="/register">Inscription</Link>
-        <button style={{ marginLeft: 20 }} onClick={logout}>Déconnexion</button>
-      </header>
-      {children}
-    </main>
-  </div>
-);
+const drawerWidth = 240;
+
+const Layout = ({ children }) => {
+  const { t } = useTranslation();
+
+  const menuSections = [
+    {
+      title: t('navigation.dashboard'),
+      items: [
+        { to: '/', label: t('navigation.dashboard') }
+      ]
+    },
+    {
+      title: 'Base',
+      items: [
+        { to: '/comptes', label: t('navigation.accounts') },
+        { to: '/ecritures', label: t('navigation.entries') },
+        { to: '/entreprises', label: t('navigation.companies') },
+        { to: '/journaux', label: t('navigation.journals') },
+        { to: '/systemes-comptables', label: t('navigation.accountingSystems') },
+        { to: '/plan-comptable', label: t('navigation.chartOfAccounts') },
+      ]
+    },
+    {
+      title: t('navigation.balanceSheet'),
+      items: [
+        { to: '/balance', label: t('navigation.balance') },
+        { to: '/grand-livre', label: t('navigation.generalLedger') },
+        { to: '/bilan', label: t('navigation.balanceSheet') },
+        { to: '/compte-resultat', label: t('navigation.incomeStatement') },
+        { to: '/notes-annexes', label: t('navigation.notes') },
+        { to: '/etats-financiers-ohada', label: t('navigation.ohadaFinancialStatements') },
+      ]
+    },
+    {
+      title: 'Modules IA',
+      items: [
+        { to: '/ged', label: t('navigation.ged') },
+        { to: '/iaec/TEST', label: 'IAEC - Assistant IA' },
+        { to: '/sycebnl', label: 'SYCEBNL' },
+      ]
+    },
+  ];
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          width: `calc(100% - ${drawerWidth}px)`,
+          ml: `${drawerWidth}px`,
+          bgcolor: 'white',
+          color: 'text.primary',
+          boxShadow: 1,
+        }}
+      >
+        <Toolbar>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            {t('app.title')}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Button
+              component={RouterLink}
+              to="/login"
+              size="small"
+            >
+              {t('auth.login')}
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/register"
+              size="small"
+            >
+              {t('auth.register')}
+            </Button>
+            <Button
+              onClick={logout}
+              size="small"
+              variant="outlined"
+            >
+              {t('navigation.logout')}
+            </Button>
+            <LanguageSwitcher />
+          </Box>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            bgcolor: '#2c3e50',
+            color: '#fff',
+          },
+        }}
+        variant="permanent"
+        anchor="left"
+      >
+        <Toolbar sx={{ minHeight: 64, display: 'flex', alignItems: 'center', px: 3 }}>
+          <Typography variant="h6" noWrap component="div" sx={{ color: '#ecf0f1' }}>
+            E-COMPTA IA
+          </Typography>
+        </Toolbar>
+        <List>
+          {menuSections.map((section, sectionIndex) => (
+            <React.Fragment key={sectionIndex}>
+              {section.title !== t('navigation.dashboard') && (
+                <ListSubheader
+                  sx={{
+                    bgcolor: 'transparent',
+                    color: '#95a5a6',
+                    fontSize: '0.75rem',
+                    textTransform: 'uppercase',
+                    fontWeight: 'bold',
+                    lineHeight: '32px',
+                  }}
+                >
+                  {section.title}
+                </ListSubheader>
+              )}
+              {section.items.map((item, itemIndex) => (
+                <ListItem key={itemIndex} disablePadding>
+                  <ListItemButton
+                    component={RouterLink}
+                    to={item.to}
+                    sx={{
+                      color: '#fff',
+                      '&:hover': {
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                      },
+                    }}
+                  >
+                    <ListItemText primary={item.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </React.Fragment>
+          ))}
+        </List>
+      </Drawer>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          bgcolor: 'background.default',
+          p: 3,
+          mt: 8,
+        }}
+      >
+        <Container maxWidth="xl">
+          {children}
+        </Container>
+      </Box>
+    </Box>
+  );
+};
 
 export default Layout;

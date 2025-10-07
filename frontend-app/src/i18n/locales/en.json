@@ -1,0 +1,120 @@
+{
+  "app": {
+    "title": "E-COMPTA-IA-LIGHT",
+    "loading": "Loading..."
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "print": "Print",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "required": "Required"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "entries": "Entries",
+    "companies": "Companies",
+    "journals": "Journals",
+    "accountingSystems": "Accounting Systems",
+    "chartOfAccounts": "Chart of Accounts",
+    "balance": "Balance",
+    "generalLedger": "General Ledger",
+    "balanceSheet": "Balance Sheet",
+    "incomeStatement": "Income Statement",
+    "ohadaFinancialStatements": "OHADA Financial Statements",
+    "notes": "Notes",
+    "ged": "DMS",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "role": "Role",
+    "loginButton": "Sign in",
+    "registerButton": "Sign up",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "incomeStatement": {
+    "title": "Income Statement",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "generate": "Generate Income Statement",
+    "generating": "Generating...",
+    "period": "From {{startDate}} to {{endDate}}",
+    "expenses": "Expenses",
+    "revenues": "Revenues",
+    "account": "Account",
+    "label": "Label",
+    "amount": "Amount",
+    "totalExpenses": "Total Expenses",
+    "totalRevenues": "Total Revenues",
+    "result": "Result",
+    "netResult": "Net Result",
+    "profit": "Profit",
+    "loss": "Loss",
+    "errors": {
+      "datesRequired": "Please enter start and end dates",
+      "generationError": "Error generating income statement: {{message}}",
+      "invalidDateRange": "End date must be after start date"
+    }
+  },
+  "ohadaFinancialStatements": {
+    "title": "OHADA Financial Statements",
+    "subtitle": "Generation of financial statements in accordance with OHADA standards",
+    "company": "Company",
+    "selectCompany": "-- Select a company --",
+    "fiscalYear": "Fiscal Year (e.g.: 2024)",
+    "fiscalYearPlaceholder": "2024",
+    "generate": "Generate Financial Statements",
+    "generating": "Generating...",
+    "balanceSheet": "Balance Sheet",
+    "incomeStatement": "Income Statement",
+    "cashFlow": "Cash Flow Statement",
+    "assets": "Assets",
+    "liabilities": "Liabilities",
+    "errors": {
+      "companyAndYearRequired": "Please select a company and enter the fiscal year",
+      "generationError": "Error generating financial statements: {{message}}",
+      "loadCompaniesError": "Error loading companies",
+      "invalidYear": "Fiscal year must be a valid year (e.g.: 2024)"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "minLength": "Minimum {{min}} characters",
+    "maxLength": "Maximum {{max}} characters",
+    "email": "Invalid email",
+    "date": "Invalid date",
+    "dateAfter": "Date must be after {{date}}",
+    "dateBefore": "Date must be before {{date}}",
+    "number": "Must be a number",
+    "positive": "Must be positive",
+    "integer": "Must be an integer"
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "network": "Connection error",
+    "unauthorized": "Unauthorized",
+    "notFound": "Resource not found",
+    "serverError": "Server error"
+  }
+}

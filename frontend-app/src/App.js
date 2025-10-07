@@ -1,7 +1,9 @@
-
 import './App.css';
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline, CircularProgress, Box } from '@mui/material';
+import { I18nextProvider } from 'react-i18next';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
@@ -17,6 +19,8 @@ import SycebnlPage from './pages/SycebnlPage';
 import InscriptionPage from './pages/InscriptionPage';
 import CompteResultat from './pages/CompteResultat';
 import EtatsFinanciersOhada from './pages/EtatsFinanciersOhada';
+import theme from './theme/theme';
+import i18n from './i18n/config';
 
 // Lazy loading pour les pages moins fréquemment utilisées
 const Balance = lazy(() => import('./pages/Balance'));
@@ -26,161 +30,166 @@ const NotesAnnexes = lazy(() => import('./pages/NotesAnnexes'));
 const GedModule = lazy(() => import('./modules/ged/GedModule'));
 const IaecWrapper = lazy(() => import('./pages/IaecWrapper'));
 
-// Composant de chargement
+// Composant de chargement avec Material-UI
 const LoadingFallback = () => (
-  <div style={{ padding: '2rem', textAlign: 'center' }}>
-    <p>Chargement...</p>
-  </div>
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+    <CircularProgress />
+  </Box>
 );
 
 function App() {
   return (
-    <ErrorBoundary>
-      <Router>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-          <Route
-            path="/inscription"
-            element={
-              <Layout>
-                <InscriptionPage />
-              </Layout>
-            }
-          />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/"
-          element={
-            <Layout>
-              <Dashboard />
-            </Layout>
-          }
-        />
-        <Route
-          path="/comptes"
-          element={
-            <Layout>
-              <Comptes />
-            </Layout>
-          }
-        />
-        <Route
-          path="/ecritures"
-          element={
-            <Layout>
-              <Ecritures />
-            </Layout>
-          }
-        />
-        <Route
-          path="/entreprises"
-          element={
-            <Layout>
-              <Entreprises />
-            </Layout>
-          }
-        />
-        <Route
-          path="/journaux"
-          element={
-            <Layout>
-              <Journaux />
-            </Layout>
-          }
-        />
-          <Route
-            path="/sycebnl"
-            element={
-              <Layout>
-                <SycebnlPage />
-              </Layout>
-            }
-          />
-        <Route
-          path="/systemes-comptables"
-          element={
-            <Layout>
-              <SystemesComptables />
-            </Layout>
-          }
-        />
-        <Route
-          path="/plan-comptable"
-          element={
-            <Layout>
-              <PlanComptable />
-            </Layout>
-          }
-        />
-        <Route
-          path="/balance"
-          element={
-            <Layout>
-              <Balance />
-            </Layout>
-          }
-        />
-        <Route
-          path="/grand-livre"
-          element={
-            <Layout>
-              <GrandLivre />
-            </Layout>
-          }
-        />
-        <Route
-          path="/bilan"
-          element={
-            <Layout>
-              <Bilan />
-            </Layout>
-          }
-        />
-        <Route
-          path="/compte-resultat"
-          element={
-            <Layout>
-              <CompteResultat />
-            </Layout>
-          }
-        />
-        <Route
-          path="/etats-financiers-ohada"
-          element={
-            <Layout>
-              <EtatsFinanciersOhada />
-            </Layout>
-          }
-        />
-        <Route
-          path="/notes-annexes"
-          element={
-            <Layout>
-              <NotesAnnexes />
-            </Layout>
-          }
-        />
-        <Route
-          path="/ged"
-          element={
-            <Layout>
-              <GedModule />
-            </Layout>
-          }
-                />
-        <Route
-          path="/iaec/:pieceId"
-          element={
-            <Layout>
-              <IaecWrapper />
-            </Layout>
-          }
-        />
-      </Routes>
-      </Suspense>
-    </Router>
-    </ErrorBoundary>
+    <I18nextProvider i18n={i18n}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ErrorBoundary>
+          <Router>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+              <Route
+                path="/inscription"
+                element={
+                  <Layout>
+                    <InscriptionPage />
+                  </Layout>
+                }
+              />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/"
+              element={
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              }
+            />
+            <Route
+              path="/comptes"
+              element={
+                <Layout>
+                  <Comptes />
+                </Layout>
+              }
+            />
+            <Route
+              path="/ecritures"
+              element={
+                <Layout>
+                  <Ecritures />
+                </Layout>
+              }
+            />
+            <Route
+              path="/entreprises"
+              element={
+                <Layout>
+                  <Entreprises />
+                </Layout>
+              }
+            />
+            <Route
+              path="/journaux"
+              element={
+                <Layout>
+                  <Journaux />
+                </Layout>
+              }
+            />
+              <Route
+                path="/sycebnl"
+                element={
+                  <Layout>
+                    <SycebnlPage />
+                  </Layout>
+                }
+              />
+            <Route
+              path="/systemes-comptables"
+              element={
+                <Layout>
+                  <SystemesComptables />
+                </Layout>
+              }
+            />
+            <Route
+              path="/plan-comptable"
+              element={
+                <Layout>
+                  <PlanComptable />
+                </Layout>
+              }
+            />
+            <Route
+              path="/balance"
+              element={
+                <Layout>
+                  <Balance />
+                </Layout>
+              }
+            />
+            <Route
+              path="/grand-livre"
+              element={
+                <Layout>
+                  <GrandLivre />
+                </Layout>
+              }
+            />
+            <Route
+              path="/bilan"
+              element={
+                <Layout>
+                  <Bilan />
+                </Layout>
+              }
+            />
+            <Route
+              path="/compte-resultat"
+              element={
+                <Layout>
+                  <CompteResultat />
+                </Layout>
+              }
+            />
+            <Route
+              path="/etats-financiers-ohada"
+              element={
+                <Layout>
+                  <EtatsFinanciersOhada />
+                </Layout>
+              }
+            />
+            <Route
+              path="/notes-annexes"
+              element={
+                <Layout>
+                  <NotesAnnexes />
+                </Layout>
+              }
+            />
+            <Route
+              path="/ged"
+              element={
+                <Layout>
+                  <GedModule />
+                </Layout>
+              }
+                    />
+            <Route
+              path="/iaec/:pieceId"
+              element={
+                <Layout>
+                  <IaecWrapper />
+                </Layout>
+              }
+            />
+          </Routes>
+          </Suspense>
+        </Router>
+        </ErrorBoundary>
+      </ThemeProvider>
+    </I18nextProvider>
   );
 }
 

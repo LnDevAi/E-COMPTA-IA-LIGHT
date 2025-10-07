@@ -1,0 +1,120 @@
+{
+  "app": {
+    "title": "E-COMPTA-IA-LIGHT",
+    "loading": "Chargement..."
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "print": "Imprimer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "required": "Requis"
+  },
+  "navigation": {
+    "dashboard": "Tableau de bord",
+    "accounts": "Comptes",
+    "entries": "Écritures",
+    "companies": "Entreprises",
+    "journals": "Journaux",
+    "accountingSystems": "Systèmes comptables",
+    "chartOfAccounts": "Plan comptable",
+    "balance": "Balance",
+    "generalLedger": "Grand Livre",
+    "balanceSheet": "Bilan",
+    "incomeStatement": "Compte de Résultat",
+    "ohadaFinancialStatements": "États Financiers OHADA",
+    "notes": "Notes annexes",
+    "ged": "GED",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "email": "Email",
+    "role": "Rôle",
+    "loginButton": "Se connecter",
+    "registerButton": "S'inscrire",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Pas encore de compte ?",
+    "hasAccount": "Déjà un compte ?"
+  },
+  "incomeStatement": {
+    "title": "Compte de Résultat",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "generate": "Générer le Compte de Résultat",
+    "generating": "Génération en cours...",
+    "period": "Du {{startDate}} au {{endDate}}",
+    "expenses": "Charges",
+    "revenues": "Produits",
+    "account": "Compte",
+    "label": "Libellé",
+    "amount": "Montant",
+    "totalExpenses": "Total Charges",
+    "totalRevenues": "Total Produits",
+    "result": "Résultat",
+    "netResult": "Résultat Net",
+    "profit": "Bénéfice",
+    "loss": "Perte",
+    "errors": {
+      "datesRequired": "Veuillez saisir les dates de début et de fin",
+      "generationError": "Erreur lors de la génération du compte de résultat : {{message}}",
+      "invalidDateRange": "La date de fin doit être après la date de début"
+    }
+  },
+  "ohadaFinancialStatements": {
+    "title": "États Financiers OHADA",
+    "subtitle": "Génération des états financiers conformes au référentiel OHADA",
+    "company": "Entreprise",
+    "selectCompany": "-- Sélectionner une entreprise --",
+    "fiscalYear": "Exercice (ex: 2024)",
+    "fiscalYearPlaceholder": "2024",
+    "generate": "Générer les États Financiers",
+    "generating": "Génération en cours...",
+    "balanceSheet": "Bilan",
+    "incomeStatement": "Compte de Résultat",
+    "cashFlow": "Tableau de Flux de Trésorerie",
+    "assets": "Actif",
+    "liabilities": "Passif",
+    "errors": {
+      "companyAndYearRequired": "Veuillez sélectionner une entreprise et saisir l'exercice",
+      "generationError": "Erreur lors de la génération des états financiers : {{message}}",
+      "loadCompaniesError": "Erreur lors du chargement des entreprises",
+      "invalidYear": "L'exercice doit être une année valide (ex: 2024)"
+    }
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "minLength": "Minimum {{min}} caractères",
+    "maxLength": "Maximum {{max}} caractères",
+    "email": "Email invalide",
+    "date": "Date invalide",
+    "dateAfter": "La date doit être après {{date}}",
+    "dateBefore": "La date doit être avant {{date}}",
+    "number": "Doit être un nombre",
+    "positive": "Doit être positif",
+    "integer": "Doit être un entier"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue",
+    "network": "Erreur de connexion au serveur",
+    "unauthorized": "Non autorisé",
+    "notFound": "Ressource non trouvée",
+    "serverError": "Erreur serveur"
+  }
+}
