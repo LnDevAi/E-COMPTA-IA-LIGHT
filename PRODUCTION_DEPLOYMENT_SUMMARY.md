@@ -45,7 +45,7 @@ Successfully transformed E-COMPTA-IA-LIGHT into a production-ready SaaS platform
 
 2. **Actuator Endpoints**
    - `/actuator/health` - Health check (public)
-   - `/actuator/info` - Application info (public)
+   - `/actuator/info` - Application info (authenticated only for security)
 
 3. **CORS Configuration** (`WebConfig.java`)
    ```java
@@ -54,8 +54,7 @@ Successfully transformed E-COMPTA-IA-LIGHT into a production-ready SaaS platform
        registry.addMapping("/api/**")
                .allowedOrigins(
                    "http://localhost:3000",
-                   "https://ecompta-frontend.onrender.com",
-                   "https://*.onrender.com"
+                   "https://ecompta-frontend.onrender.com"
                )
                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                .allowedHeaders("*")
@@ -65,7 +64,8 @@ Successfully transformed E-COMPTA-IA-LIGHT into a production-ready SaaS platform
    ```
 
 4. **Security Configuration** (`SecurityConfig.java`)
-   - Added actuator endpoints to public access list
+   - Added `/actuator/health` endpoint to public access list
+   - `/actuator/info` restricted to authenticated users for security
    - Maintained existing security for API endpoints
 
 ### Frontend (React 19 + Material-UI)
@@ -82,11 +82,6 @@ Successfully transformed E-COMPTA-IA-LIGHT into a production-ready SaaS platform
 REACT_APP_API_URL=https://ecompta-backend.onrender.com
 ```
 
-#### SPA Routing (_redirects)
-```
-/* /index.html 200
-```
-
 #### SEO Improvements (index.html)
 - Title: "E-COMPTA-IA-LIGHT - Comptabilité Intelligente"
 - Meta description: "Solution de comptabilité intelligente et moderne"
@@ -99,41 +94,42 @@ REACT_APP_API_URL=https://ecompta-backend.onrender.com
 **Before:**
 - ❌ Docker-based deployment (both services)
 - ❌ No health checks
-- ❌ Docker build overhead
-- ❌ Larger image sizes
+- ❌ Basic configuration
+- ❌ No production profile
 
 **After:**
-- ✅ Java native runtime (backend)
-- ✅ Static site hosting (frontend)
+- ✅ Docker-based deployment (both services) with optimizations
 - ✅ Health check monitoring
-- ✅ Faster builds
-- ✅ Smaller deployment size
+- ✅ Production profile enabled
+- ✅ Multi-stage builds for smaller images
+- ✅ Proper environment configuration
 
 #### Backend Service Configuration
 ```yaml
 - type: web
   name: ecompta-backend
-  env: java
-  region: frankfurt
+  env: docker
+  dockerfilePath: ./Dockerfile.backend
   plan: free
-  buildCommand: cd backend && mvn clean package -DskipTests -Pprod
-  startCommand: cd backend && java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/*.jar
   healthCheckPath: /actuator/health
+  envVars:
+    - key: SPRING_PROFILES_ACTIVE
+      value: prod
+    - key: JWT_SECRET
+      generateValue: true
 ```
 
 #### Frontend Service Configuration
 ```yaml
 - type: web
   name: ecompta-frontend
-  env: static
-  region: frankfurt
+  env: docker
+  dockerfilePath: ./frontend-app/Dockerfile
+  dockerContext: ./frontend-app
   plan: free
-  buildCommand: cd frontend-app && npm install && npm run build
-  staticPublishPath: frontend-app/build
-  routes:
-    - type: rewrite
-      source: /*
-      destination: /index.html
+  envVars:
+    - key: REACT_APP_API_URL
+      value: https://ecompta-backend.onrender.com
 ```
 
 #### Database Configuration

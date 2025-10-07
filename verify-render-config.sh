@@ -120,13 +120,6 @@ else
     exit 1
 fi
 
-# Check _redirects file exists
-if [ -f "frontend-app/public/_redirects" ]; then
-    echo "✅ _redirects file exists"
-else
-    echo "⚠️  Warning: _redirects file NOT found (not needed for Docker/nginx)"
-fi
-
 # Check .env.production
 if [ -f "frontend-app/.env.production" ]; then
     echo "✅ .env.production exists"
