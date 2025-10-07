@@ -37,7 +37,8 @@ Before deploying to Render, verify:
 **Solutions**:
 1. Check that `render.yaml` is at the root of the repository
 2. Verify all database references use the correct name (e.g., `postgres`)
-3. Ensure plan names are valid (`starter`, `standard`, etc.)
+3. Ensure plan names are valid (`free` for free tier, `standard`, `pro`, etc.)
+   - **Note**: The `starter` plan is deprecated and no longer supported
 
 ### Issue 2: Backend Build Fails
 

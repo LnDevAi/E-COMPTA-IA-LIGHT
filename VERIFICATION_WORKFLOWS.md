@@ -100,6 +100,7 @@ Stage 2: Runtime avec Nginx Alpine
    - Environment: Docker
    - Dockerfile: ./Dockerfile.backend
    - Port: 8080
+   - Plan: free ✅
    - Variables d'environnement:
      - SPRING_PROFILES_ACTIVE=prod ✅
      - JWT_SECRET (auto-généré) ✅
@@ -112,6 +113,7 @@ Stage 2: Runtime avec Nginx Alpine
    - Environment: Docker
    - Dockerfile: ./frontend-app/Dockerfile
    - Port: 80
+   - Plan: free ✅
    - Variables d'environnement:
      - REACT_APP_API_URL ✅
 
@@ -119,7 +121,7 @@ Stage 2: Runtime avec Nginx Alpine
    - Type: Database
    - Database: ecomptaia
    - User: ecomptaia
-   - Plan: starter ✅
+   - Plan: free ✅
 
 ## ✅ Dépendances
 

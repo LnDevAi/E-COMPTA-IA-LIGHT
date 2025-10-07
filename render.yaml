@@ -4,7 +4,7 @@ services:
     name: ecompta-backend
     env: docker
     dockerfilePath: ./Dockerfile.backend
-    plan: starter
+    plan: free
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
@@ -37,7 +37,7 @@ services:
     name: ecompta-frontend
     env: docker
     dockerfilePath: ./frontend-app/Dockerfile
-    plan: starter
+    plan: free
     envVars:
       - key: REACT_APP_API_URL
         value: https://ecompta-backend.onrender.com
