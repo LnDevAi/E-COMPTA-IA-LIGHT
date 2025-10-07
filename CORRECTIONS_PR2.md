@@ -19,7 +19,7 @@ Ce document résume toutes les corrections apportées au projet selon les commen
 - Configuration PostgreSQL avec `fromDatabase` pour les propriétés
 - Génération automatique du JWT_SECRET
 - Configuration de l'URL API pour le frontend
-- Ajout du plan `starter` pour la base de données
+- Base de données avec plan `free` (mis à jour depuis `starter` qui est déprécié)
 
 ### 2. Dockerfile.backend - Build multi-étapes
 

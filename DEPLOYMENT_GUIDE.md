@@ -27,7 +27,9 @@ Le fichier `render.yaml` à la racine du projet permet un déploiement automatiq
 2. **Services créés automatiquement**
    - `ecompta-backend` : Service Web backend (Dockerfile.backend)
    - `ecompta-frontend` : Service Web frontend (frontend-app/Dockerfile)
-   - `postgres` : Base de données PostgreSQL
+   - `postgres` : Base de données PostgreSQL (plan: free)
+   
+   **Note importante**: Le plan "starter" pour les bases de données PostgreSQL n'est plus supporté par Render. Le fichier `render.yaml` utilise maintenant le plan "free" qui est le niveau gratuit actuel.
 
 3. **Variables d'environnement configurées automatiquement**
    - `SPRING_PROFILES_ACTIVE=prod`
@@ -73,7 +75,7 @@ Si vous préférez configurer manuellement :
 2. Name: `postgres`
 3. Database name: `ecomptaia`
 4. User: `ecomptaia`
-5. Instance type: Starter
+5. Instance type: Free (Note: "Starter" plan is deprecated for databases)
 
 ## Railway
 
