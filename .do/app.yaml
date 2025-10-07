@@ -67,7 +67,7 @@ services:
   - name: frontend
     # Use Docker build from frontend-app/Dockerfile
     dockerfile_path: frontend-app/Dockerfile
-    source_dir: /
+    source_dir: /frontend-app
     github:
       branch: main
       deploy_on_push: true
