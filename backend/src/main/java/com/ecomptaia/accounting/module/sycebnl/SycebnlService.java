@@ -10,6 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import com.ecomptaia.accounting.module.sycebnl.SycebnlOrganizationDto;
 import com.ecomptaia.accounting.module.sycebnl.ValidationDto;
+import com.ecomptaia.accounting.storage.FileStorageService;
+import com.ecomptaia.accounting.ocr.OcrService;
+import com.ecomptaia.accounting.ai.ImputationAiService;
+import com.ecomptaia.accounting.repository.EcritureComptableRepository;
+import com.ecomptaia.accounting.repository.CompteComptableRepository;
+import com.ecomptaia.accounting.repository.JournalRepository;
+import com.ecomptaia.accounting.entity.EcritureComptable;
+import com.ecomptaia.accounting.entity.LigneEcriture;
 
 @Service
 public class SycebnlService {
@@ -17,6 +25,18 @@ public class SycebnlService {
     private SycebnlOrganizationRepository organizationRepository;
     @Autowired
     private PieceJustificativeSycebnlRepository pieceRepository;
+    @Autowired
+    private FileStorageService storage;
+    @Autowired
+    private OcrService ocrService;
+    @Autowired
+    private ImputationAiService aiService;
+    @Autowired
+    private EcritureComptableRepository ecritureRepository;
+    @Autowired
+    private CompteComptableRepository compteRepository;
+    @Autowired
+    private JournalRepository journalRepository;
 
     // Mapping DTO -> Entity
     private SycebnlOrganization toEntity(SycebnlOrganizationDto dto) {
@@ -89,14 +109,14 @@ public class SycebnlService {
 
     // Workflow GED + IA
     public Object uploadPieceJustificative(MultipartFile file, String libellePJ, String datePiece, String typePJ, Long entrepriseId, Long utilisateurId) {
-        // Simule l'enregistrement du fichier et la création de la pièce
         PieceJustificativeSycebnl pj = new PieceJustificativeSycebnl();
         pj.setLibellePJ(libellePJ);
         pj.setDatePiece(java.time.LocalDate.parse(datePiece));
         pj.setTypePJ(typePJ);
         pj.setEntrepriseId(entrepriseId);
         pj.setUtilisateurId(utilisateurId);
-        pj.setFilePath("/files/" + file.getOriginalFilename());
+        String path = storage.store(file, "pieces");
+        pj.setFilePath(path);
         pj.setStatus("UPLOADED");
         pieceRepository.save(pj);
         return pj;
@@ -105,8 +125,8 @@ public class SycebnlService {
     public Object analyseOCR(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule l'analyse OCR
-        pj.setOcrResult("Texte extrait (OCR)");
+        byte[] content = storage.read(pj.getFilePath());
+        pj.setOcrResult(ocrService.extractText(content, pj.getFilePath()));
         pj.setStatus("OCR_DONE");
         pieceRepository.save(pj);
         return pj;
@@ -115,8 +135,8 @@ public class SycebnlService {
     public Object analyseIA(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule l'analyse IA
-        pj.setIaResult("Proposition IA : écriture générée");
+        var lines = aiService.proposeLines(pj.getOcrResult() != null ? pj.getOcrResult() : "");
+        pj.setIaResult("Propositions: " + lines.size());
         pj.setStatus("IA_DONE");
         pieceRepository.save(pj);
         return pj;
@@ -125,7 +145,6 @@ public class SycebnlService {
     public Object genererPropositions(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule la génération de propositions d'écritures
         pj.setStatus("PROPOSITION_GENERATED");
         pieceRepository.save(pj);
         return "Propositions générées";
@@ -134,7 +153,6 @@ public class SycebnlService {
     public Object validerProposition(Long id, ValidationDto validation) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule la validation
         pj.setStatus("VALIDATED");
         pieceRepository.save(pj);
         return "Proposition validée par " + validation.validateurId;
@@ -143,19 +161,34 @@ public class SycebnlService {
     public Object genererEcriture(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule la génération d'écriture comptable
+        var lines = aiService.proposeLines(pj.getOcrResult() != null ? pj.getOcrResult() : "");
+        if (lines.isEmpty()) return "Aucune proposition";
+        EcritureComptable e = new EcritureComptable();
+        e.setLibelle("Pièce " + pj.getId() + " - " + pj.getLibellePJ());
+        e.setDateEcriture(java.time.LocalDate.now());
+        journalRepository.findByCode("OD").ifPresent(e::setJournal);
+        for (var pl : lines) {
+            var optCompte = compteRepository.findByNumero(pl.compteNumero);
+            if (optCompte.isEmpty()) continue;
+            LigneEcriture l = new LigneEcriture();
+            l.setEcriture(e);
+            l.setCompte(optCompte.get());
+            l.setLibelle(pl.libelle);
+            l.setMontantDebit(java.math.BigDecimal.valueOf(pl.debit));
+            l.setMontantCredit(java.math.BigDecimal.valueOf(pl.credit));
+            e.getLignes().add(l);
+        }
+        e = ecritureRepository.save(e);
         pj.setStatus("ECRITURE_GENERATED");
         pieceRepository.save(pj);
-        return "Écriture générée";
+        return e;
     }
 
     public Object getEtatsFinanciers(Long organisationId) {
-        // Simule la génération d'états financiers SN/SMT
         return "États financiers SN/SMT pour organisation " + organisationId;
     }
 
     public Object genererNotesAnnexes(Long id) {
-        // Simule la génération de notes annexes
         return "Notes annexes générées pour état financier " + id;
     }
 }

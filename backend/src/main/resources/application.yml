@@ -37,3 +37,7 @@ server:
 jwt:
   secret: ${JWT_SECRET:mon-secret-jwt-tres-long-et-super-securise-pour-jwt-hmac-sha-256-bits-minimum}
   expiration: ${JWT_EXPIRATION:86400000}
+
+storage:
+  local:
+    baseDir: ${STORAGE_BASE_DIR:/workspace/storage}
