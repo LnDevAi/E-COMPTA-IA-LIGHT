@@ -19,9 +19,13 @@ public class PieceJustificativeSycebnl {
     private Long entrepriseId;
     private Long utilisateurId;
     private String filePath;
+    private String contentType;
+    private long size;
+    private String sha256;
     private String ocrResult;
     private String iaResult;
     private String status;
+    private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getLibellePJ() { return libellePJ; }
@@ -42,4 +46,12 @@ public class PieceJustificativeSycebnl {
     public void setIaResult(String iaResult) { this.iaResult = iaResult; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getContentType() { return contentType; }
+    public void setContentType(String contentType) { this.contentType = contentType; }
+    public long getSize() { return size; }
+    public void setSize(long size) { this.size = size; }
+    public String getSha256() { return sha256; }
+    public void setSha256(String sha256) { this.sha256 = sha256; }
+    public java.time.LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(java.time.LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

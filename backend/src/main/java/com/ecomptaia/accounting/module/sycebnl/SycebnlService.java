@@ -19,6 +19,9 @@ import com.ecomptaia.accounting.repository.CompteComptableRepository;
 import com.ecomptaia.accounting.repository.JournalRepository;
 import com.ecomptaia.accounting.entity.EcritureComptable;
 import com.ecomptaia.accounting.entity.LigneEcriture;
+import com.ecomptaia.accounting.storage.validators.UploadValidator;
+import com.ecomptaia.accounting.storage.validators.AntivirusService;
+import com.ecomptaia.accounting.security.SignedUrlService;
 
 @Service
 public class SycebnlService {
@@ -38,6 +41,12 @@ public class SycebnlService {
     private CompteComptableRepository compteRepository;
     @Autowired
     private JournalRepository journalRepository;
+    @Autowired
+    private UploadValidator uploadValidator;
+    @Autowired
+    private AntivirusService antivirusService;
+    @Autowired
+    private SignedUrlService signedUrlService;
 
     // Mapping DTO -> Entity
     private SycebnlOrganization toEntity(SycebnlOrganizationDto dto) {
@@ -110,14 +119,25 @@ public class SycebnlService {
 
     // Workflow GED + IA
     public Object uploadPieceJustificative(MultipartFile file, String libellePJ, String datePiece, String typePJ, Long entrepriseId, Long utilisateurId) {
+        uploadValidator.validate(file);
+        byte[] bytes;
+        try { bytes = file.getBytes(); } catch (java.io.IOException e1) { throw new RuntimeException(e1); }
+        antivirusService.scan(bytes);
         PieceJustificativeSycebnl pj = new PieceJustificativeSycebnl();
         pj.setLibellePJ(libellePJ);
         pj.setDatePiece(java.time.LocalDate.parse(datePiece));
         pj.setTypePJ(typePJ);
         pj.setEntrepriseId(entrepriseId);
         pj.setUtilisateurId(utilisateurId);
+        // Idempotency: reject duplicates by content hash
+        if (pieceRepository.existsBySha256(pj.getSha256())) {
+            throw new RuntimeException("Duplicate document detected");
+        }
         String path = storage.store(file, "pieces");
         pj.setFilePath(path);
+        pj.setContentType(file.getContentType());
+        pj.setSize(file.getSize());
+        pj.setSha256(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes)));
         pj.setStatus("UPLOADED");
         pieceRepository.save(pj);
         return pj;
@@ -199,8 +219,11 @@ public class SycebnlService {
         return pieceRepository.findAll();
     }
 
-    public byte[] downloadPiece(Long id) {
+    public byte[] downloadPiece(Long id, String token) {
         var pj = pieceRepository.findById(id).orElseThrow();
+        if (token != null && !signedUrlService.verify(token, String.valueOf(id))) {
+            throw new RuntimeException("Invalid or expired token");
+        }
         return storage.read(pj.getFilePath());
     }
 }

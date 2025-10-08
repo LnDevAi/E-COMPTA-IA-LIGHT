@@ -77,8 +77,8 @@ public class SycebnlController {
     }
 
     @GetMapping("/pieces-justificatives/{id}/download")
-    public ResponseEntity<byte[]> download(@PathVariable Long id) {
-        var res = sycebnlService.downloadPiece(id);
+    public ResponseEntity<byte[]> download(@PathVariable Long id, @RequestParam(required = false) String token) {
+        var res = sycebnlService.downloadPiece(id, token);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=piece-" + id)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
