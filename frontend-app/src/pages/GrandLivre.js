@@ -92,8 +92,8 @@ export default function GrandLivre() {
               label="Système comptable"
               onChange={e => setSysteme(e.target.value)}
             >
-              <MenuItem value="NORMAL">OHADA Normal</MenuItem>
-              <MenuItem value="MINIMAL">OHADA Minimal</MenuItem>
+              <MenuItem value="NORMAL">AUDCIF Normal</MenuItem>
+              <MenuItem value="MINIMAL">AUDCIF Minimal</MenuItem>
             </Select>
           </FormControl>
         </Grid>

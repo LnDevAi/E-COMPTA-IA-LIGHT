@@ -20,8 +20,8 @@ import {
 } from '@mui/material';
 
 const SYSTEMES = [
-  { value: 'NORMAL', label: 'OHADA Normal' },
-  { value: 'MINIMAL', label: 'OHADA Minimal' }
+  { value: 'NORMAL', label: 'AUDCIF Normal' },
+  { value: 'MINIMAL', label: 'AUDCIF Minimal' }
 ];
 
 export default function Bilan() {
