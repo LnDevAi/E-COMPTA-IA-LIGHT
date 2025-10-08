@@ -7,6 +7,7 @@ import com.ecomptaia.accounting.module.sycebnl.repository.PieceJustificativeSyce
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.scheduling.annotation.Async;
 import java.util.List;
 import com.ecomptaia.accounting.module.sycebnl.SycebnlOrganizationDto;
 import com.ecomptaia.accounting.module.sycebnl.ValidationDto;
@@ -132,6 +133,7 @@ public class SycebnlService {
         return pj;
     }
 
+    @Async
     public Object analyseIA(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
@@ -190,5 +192,15 @@ public class SycebnlService {
 
     public Object genererNotesAnnexes(Long id) {
         return "Notes annexes générées pour état financier " + id;
+    }
+
+    // Listing & download helpers
+    public java.util.List<PieceJustificativeSycebnl> listPieces() {
+        return pieceRepository.findAll();
+    }
+
+    public byte[] downloadPiece(Long id) {
+        var pj = pieceRepository.findById(id).orElseThrow();
+        return storage.read(pj.getFilePath());
     }
 }

@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import java.util.List;
 import com.ecomptaia.accounting.module.sycebnl.SycebnlOrganizationDto;
 import com.ecomptaia.accounting.module.sycebnl.ValidationDto;
@@ -66,6 +68,21 @@ public class SycebnlController {
     @PostMapping("/pieces-justificatives/propositions/{id}/generer-ecriture")
     public ResponseEntity<?> genererEcriture(@PathVariable Long id) {
         return ResponseEntity.ok(sycebnlService.genererEcriture(id));
+    }
+
+    // Listing & download
+    @GetMapping("/pieces-justificatives")
+    public ResponseEntity<?> listPieces() {
+        return ResponseEntity.ok(sycebnlService.listPieces());
+    }
+
+    @GetMapping("/pieces-justificatives/{id}/download")
+    public ResponseEntity<byte[]> download(@PathVariable Long id) {
+        var res = sycebnlService.downloadPiece(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=piece-" + id)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(res);
     }
 
     // États financiers SN/SMT, notes annexes
