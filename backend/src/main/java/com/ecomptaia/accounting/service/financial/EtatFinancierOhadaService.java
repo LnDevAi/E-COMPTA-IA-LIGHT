@@ -1,13 +1,13 @@
 package com.ecomptaia.accounting.service.financial;
 
 import com.ecomptaia.accounting.entity.Entreprise;
-import com.ecomptaia.accounting.entity.TypeSystemeOhada;
-import com.ecomptaia.accounting.entity.financial.EtatFinancierOhada;
-import com.ecomptaia.accounting.entity.financial.TypeEtatFinancierOhada;
+import com.ecomptaia.accounting.entity.TypeSystemeAudcif;
+import com.ecomptaia.accounting.entity.financial.EtatFinancierAudcif;
+import com.ecomptaia.accounting.entity.financial.TypeEtatFinancierAudcif;
 import com.ecomptaia.accounting.entity.financial.Bilan;
 import com.ecomptaia.accounting.entity.financial.CompteResultat;
 import com.ecomptaia.accounting.entity.financial.NoteAnnexe;
-import com.ecomptaia.accounting.entity.financial.TableauTresorerieOhada;
+import com.ecomptaia.accounting.entity.financial.TableauTresorerieAudcif;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +23,12 @@ public class EtatFinancierOhadaService {
     /**
      * Génère les états financiers adaptés selon le type OHADA (NORMAL ou MINIMAL).
      */
-    public EtatFinancierOhada genererEtatsPourEntreprise(Entreprise entreprise, String exercice) {
-        EtatFinancierOhada etat = new EtatFinancierOhada();
+    public EtatFinancierAudcif genererEtatsPourEntreprise(Entreprise entreprise, String exercice) {
+        EtatFinancierAudcif etat = new EtatFinancierAudcif();
         etat.setEntreprise(entreprise);
         etat.setExercice(exercice);
-        if (entreprise.getTypeSystemeOhada() == TypeSystemeOhada.NORMAL) {
-            etat.setTypeSystemeOhada(TypeSystemeOhada.NORMAL);
+        if (entreprise.getTypeSystemeAudcif() == TypeSystemeAudcif.NORMAL) {
+            etat.setTypeSystemeAudcif(TypeSystemeAudcif.NORMAL);
                 // Générer bilan et compte de résultat à partir des écritures
                 java.time.LocalDate debut = java.time.LocalDate.of(Integer.parseInt(exercice), 1, 1);
                 java.time.LocalDate fin = java.time.LocalDate.of(Integer.parseInt(exercice), 12, 31);
@@ -43,10 +43,10 @@ public class EtatFinancierOhadaService {
                     if (!notes.isEmpty()) {
                         etat.setNoteAnnexe(notes.get(0)); // On peut enrichir pour stocker la liste complète
                     }
-        } else if (entreprise.getTypeSystemeOhada() == TypeSystemeOhada.MINIMAL) {
-            etat.setTypeSystemeOhada(TypeSystemeOhada.MINIMAL);
+        } else if (entreprise.getTypeSystemeAudcif() == TypeSystemeAudcif.MINIMAL) {
+            etat.setTypeSystemeAudcif(TypeSystemeAudcif.MINIMAL);
                 // Générer tableau de trésorerie simplifié
-                TableauTresorerieOhada tableau = new TableauTresorerieOhada();
+                TableauTresorerieAudcif tableau = new TableauTresorerieAudcif();
                 tableau.setExercice(exercice);
                 tableau.setSoldeInitial(0);
                 tableau.setSoldeFinal(0);

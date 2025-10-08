@@ -2,7 +2,7 @@
 package com.ecomptaia.accounting.config;
 
 import com.ecomptaia.accounting.entity.SystemeComptable;
-import com.ecomptaia.accounting.entity.TypeSystemeOhada;
+import com.ecomptaia.accounting.entity.TypeSystemeAudcif;
 import com.ecomptaia.accounting.entity.Entreprise;
 import com.ecomptaia.accounting.entity.CompteComptable;
 import com.ecomptaia.accounting.entity.Journal;
@@ -31,20 +31,20 @@ public class DataInitializer {
     @PostConstruct
     public void initData() {
         if (systemeComptableService.obtenirTousSystemes().isEmpty()) {
-            SystemeComptable syscohada = new SystemeComptable();
-            syscohada.setCode("SYSCOHADA");
-            syscohada.setLibelle("SYSCOHADA");
-            syscohada.setDescription("Système OHADA complet");
-            syscohada = systemeComptableService.creerSysteme(syscohada);
+            SystemeComptable audcif = new SystemeComptable();
+            audcif.setCode("AUDCIF");
+            audcif.setLibelle("AUDCIF");
+            audcif.setDescription("Système comptable AUDCIF");
+            audcif = systemeComptableService.creerSysteme(audcif);
 
             Entreprise entreprise = new Entreprise();
             entreprise.setNom("Entreprise Demo");
             entreprise.setPays("Cameroun");
-            entreprise.setSystemeComptable(syscohada);
-            entreprise.setTypeSystemeOhada(TypeSystemeOhada.NORMAL);
+            entreprise.setSystemeComptable(audcif);
+            entreprise.setTypeSystemeAudcif(TypeSystemeAudcif.NORMAL);
             entreprise = entrepriseService.creerEntreprise(entreprise);
 
-            // Initialisation du plan comptable SYSCOHADA (classes 1 à 7)
+            // Initialisation du plan comptable AUDCIF (classes 1 à 7)
             int compteCount = 0;
             for (int classe = 1; classe <= 7; classe++) {
                 for (int i = 0; i < 10; i++) {
@@ -53,7 +53,7 @@ public class DataInitializer {
                     compte.setLibelle("Compte classe " + classe + " n°" + i);
                     compte.setType(classe <= 2 ? CompteComptable.TypeCompte.ACTIF : (classe <= 4 ? CompteComptable.TypeCompte.CHARGE : CompteComptable.TypeCompte.PASSIF));
                     compte.setNature(classe <= 4 ? CompteComptable.NatureCompte.DEBIT : CompteComptable.NatureCompte.CREDIT);
-                    compte.setSystemeComptable(syscohada);
+                    compte.setSystemeComptable(audcif);
                     compteComptableService.creerCompte(compte);
                     compteCount++;
                 }
@@ -77,7 +77,7 @@ public class DataInitializer {
                 journalService.creerJournal(journal);
             }
 
-            System.out.println("Plan comptable SYSCOHADA initialisé avec " + compteCount + " comptes");
+            System.out.println("Plan comptable AUDCIF initialisé avec " + compteCount + " comptes");
         }
     }
 }

@@ -21,11 +21,10 @@ spring:
       hibernate:
         dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
 
-# Exemple : charger le plan OHADA par défaut
+# Exemple : charger le plan AUDCIF par défaut (désactivé pour éviter conflits FK)
   sql:
     init:
-      mode: always
-      data-locations: classpath:data-plan-ohada.sql,classpath:data-journaux.sql
+      mode: never
 
   messages:
     basename: messages
@@ -38,3 +37,7 @@ server:
 jwt:
   secret: ${JWT_SECRET:mon-secret-jwt-tres-long-et-super-securise-pour-jwt-hmac-sha-256-bits-minimum}
   expiration: ${JWT_EXPIRATION:86400000}
+
+storage:
+  local:
+    baseDir: ${STORAGE_BASE_DIR:/workspace/storage}

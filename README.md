@@ -95,7 +95,7 @@ mvn spring-boot:run
 - GET /api/rapports/bilan?date=YYYY-MM-DD
 
 ### États Financiers
-- GET /api/etats-financiers/ohada?date=YYYY-MM-DD
+- POST /api/etats-financiers-audcif/generer?exercice=YYYY
 
 ---
 
@@ -148,6 +148,14 @@ Swagger UI : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagg
 -------------------+
 
 -------------------+
+## Documentation SaaS
+
+- [SAAS_PRICING.md](docs/SAAS_PRICING.md)
+- [MULTI_TENANCY.md](docs/MULTI_TENANCY.md)
+- [SECURITY.md](docs/SECURITY.md)
+- [SLA.md](docs/SLA.md)
+- [ONBOARDING.md](docs/ONBOARDING.md)
+
 ## Architecture (ASCII Art)
 
 -------------------+
@@ -169,7 +177,7 @@ Swagger UI : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagg
 - Table `journaux` : id, code, libelle
 - Table `ecritures_comptables` : id, libelle, date, journal_id
 - Table `lignes_ecriture` : id, ecriture_id, compte_id, debit, credit
-- Table `entreprises` : id, nom, pays, systeme_comptable_id, type_systeme_ohada
+- Table `entreprises` : id, nom, pays, systeme_comptable_id, type_systeme_audcif (ancien: type_systeme_ohada)
 - Table `systemes_comptables` : id, code, libelle, description
 
 ---

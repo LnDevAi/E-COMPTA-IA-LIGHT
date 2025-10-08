@@ -5,9 +5,9 @@ import lombok.Data;
 import java.util.List;
 
 @Entity
-@Table(name = "tableaux_tresorerie_ohada")
+@Table(name = "tableaux_tresorerie_audcif")
 @Data
-public class TableauTresorerieOhada {
+public class TableauTresorerieAudcif {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -16,7 +16,7 @@ public class TableauTresorerieOhada {
     private String exercice;
 
     @ElementCollection
-    private List<String> lignesTresorerie; // À modéliser selon le rapport AUDCIF
+    private List<String> lignesTresorerie;
 
     private double soldeInitial;
     private double soldeFinal;

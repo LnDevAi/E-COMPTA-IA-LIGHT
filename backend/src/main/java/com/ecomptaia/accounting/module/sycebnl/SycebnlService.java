@@ -7,9 +7,22 @@ import com.ecomptaia.accounting.module.sycebnl.repository.PieceJustificativeSyce
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.scheduling.annotation.Async;
 import java.util.List;
 import com.ecomptaia.accounting.module.sycebnl.SycebnlOrganizationDto;
 import com.ecomptaia.accounting.module.sycebnl.ValidationDto;
+import com.ecomptaia.accounting.storage.FileStorageService;
+import com.ecomptaia.accounting.ocr.OcrService;
+import com.ecomptaia.accounting.ai.ImputationAiService;
+import com.ecomptaia.accounting.repository.EcritureComptableRepository;
+import com.ecomptaia.accounting.repository.CompteComptableRepository;
+import com.ecomptaia.accounting.repository.JournalRepository;
+import com.ecomptaia.accounting.entity.EcritureComptable;
+import com.ecomptaia.accounting.entity.LigneEcriture;
+import com.ecomptaia.accounting.storage.validators.UploadValidator;
+import com.ecomptaia.accounting.storage.validators.AntivirusService;
+import com.ecomptaia.accounting.security.SignedUrlService;
+import com.ecomptaia.accounting.audit.AuditService;
 
 @Service
 public class SycebnlService {
@@ -17,6 +30,28 @@ public class SycebnlService {
     private SycebnlOrganizationRepository organizationRepository;
     @Autowired
     private PieceJustificativeSycebnlRepository pieceRepository;
+    @Autowired
+    private FileStorageService storage;
+    @Autowired
+    private OcrService ocrService;
+    @Autowired
+    private ImputationAiService aiService;
+    @Autowired
+    private EcritureComptableRepository ecritureRepository;
+    @Autowired
+    private CompteComptableRepository compteRepository;
+    @Autowired
+    private JournalRepository journalRepository;
+    @Autowired
+    private UploadValidator uploadValidator;
+    @Autowired
+    private AntivirusService antivirusService;
+    @Autowired
+    private SignedUrlService signedUrlService;
+    @Autowired
+    private JournalSelectionService journalSelectionService;
+    @Autowired
+    private AuditService auditService;
 
     // Mapping DTO -> Entity
     private SycebnlOrganization toEntity(SycebnlOrganizationDto dto) {
@@ -89,43 +124,57 @@ public class SycebnlService {
 
     // Workflow GED + IA
     public Object uploadPieceJustificative(MultipartFile file, String libellePJ, String datePiece, String typePJ, Long entrepriseId, Long utilisateurId) {
-        // Simule l'enregistrement du fichier et la création de la pièce
+        uploadValidator.validate(file);
+        byte[] bytes;
+        try { bytes = file.getBytes(); } catch (java.io.IOException e1) { throw new RuntimeException(e1); }
+        antivirusService.scan(bytes);
         PieceJustificativeSycebnl pj = new PieceJustificativeSycebnl();
         pj.setLibellePJ(libellePJ);
         pj.setDatePiece(java.time.LocalDate.parse(datePiece));
         pj.setTypePJ(typePJ);
         pj.setEntrepriseId(entrepriseId);
         pj.setUtilisateurId(utilisateurId);
-        pj.setFilePath("/files/" + file.getOriginalFilename());
+        // Idempotency: reject duplicates by content hash
+        if (pieceRepository.existsBySha256(pj.getSha256())) {
+            throw new RuntimeException("Duplicate document detected");
+        }
+        String path = storage.store(file, "pieces");
+        pj.setFilePath(path);
+        pj.setContentType(file.getContentType());
+        pj.setSize(file.getSize());
+        pj.setSha256(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes)));
         pj.setStatus("UPLOADED");
         pieceRepository.save(pj);
+        auditService.log("UPLOAD_PIECE", "id=" + pj.getId() + ", name=" + libellePJ);
         return pj;
     }
 
     public Object analyseOCR(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule l'analyse OCR
-        pj.setOcrResult("Texte extrait (OCR)");
+        byte[] content = storage.read(pj.getFilePath());
+        pj.setOcrResult(ocrService.extractText(content, pj.getFilePath()));
         pj.setStatus("OCR_DONE");
         pieceRepository.save(pj);
+        auditService.log("OCR_DONE", "id=" + pj.getId());
         return pj;
     }
 
+    @Async
     public Object analyseIA(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule l'analyse IA
-        pj.setIaResult("Proposition IA : écriture générée");
+        var lines = aiService.proposeLines(pj.getOcrResult() != null ? pj.getOcrResult() : "");
+        pj.setIaResult("Propositions: " + lines.size());
         pj.setStatus("IA_DONE");
         pieceRepository.save(pj);
+        auditService.log("IA_DONE", "id=" + pj.getId());
         return pj;
     }
 
     public Object genererPropositions(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule la génération de propositions d'écritures
         pj.setStatus("PROPOSITION_GENERATED");
         pieceRepository.save(pj);
         return "Propositions générées";
@@ -134,7 +183,6 @@ public class SycebnlService {
     public Object validerProposition(Long id, ValidationDto validation) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule la validation
         pj.setStatus("VALIDATED");
         pieceRepository.save(pj);
         return "Proposition validée par " + validation.validateurId;
@@ -143,19 +191,48 @@ public class SycebnlService {
     public Object genererEcriture(Long id) {
         var pj = pieceRepository.findById(id).orElse(null);
         if (pj == null) return null;
-        // Simule la génération d'écriture comptable
+        var lines = aiService.proposeLines(pj.getOcrResult() != null ? pj.getOcrResult() : "");
+        if (lines.isEmpty()) return "Aucune proposition";
+        EcritureComptable e = new EcritureComptable();
+        e.setLibelle("Pièce " + pj.getId() + " - " + pj.getLibellePJ());
+        e.setDateEcriture(java.time.LocalDate.now());
+        journalSelectionService.select(pj.getLibellePJ(), pj.getTypePJ(), pj.getOcrResult()).ifPresent(e::setJournal);
+        for (var pl : lines) {
+            var optCompte = compteRepository.findByNumero(pl.compteNumero);
+            if (optCompte.isEmpty()) continue;
+            LigneEcriture l = new LigneEcriture();
+            l.setEcriture(e);
+            l.setCompte(optCompte.get());
+            l.setLibelle(pl.libelle);
+            l.setMontantDebit(java.math.BigDecimal.valueOf(pl.debit));
+            l.setMontantCredit(java.math.BigDecimal.valueOf(pl.credit));
+            e.getLignes().add(l);
+        }
+        e = ecritureRepository.save(e);
         pj.setStatus("ECRITURE_GENERATED");
         pieceRepository.save(pj);
-        return "Écriture générée";
+        auditService.log("ECRITURE_GENERATED", "pieceId=" + pj.getId() + ", ecritureId=" + e.getId());
+        return e;
     }
 
     public Object getEtatsFinanciers(Long organisationId) {
-        // Simule la génération d'états financiers SN/SMT
         return "États financiers SN/SMT pour organisation " + organisationId;
     }
 
     public Object genererNotesAnnexes(Long id) {
-        // Simule la génération de notes annexes
         return "Notes annexes générées pour état financier " + id;
+    }
+
+    // Listing & download helpers
+    public java.util.List<PieceJustificativeSycebnl> listPieces() {
+        return pieceRepository.findAll();
+    }
+
+    public byte[] downloadPiece(Long id, String token) {
+        var pj = pieceRepository.findById(id).orElseThrow();
+        if (token != null && !signedUrlService.verify(token, String.valueOf(id))) {
+            throw new RuntimeException("Invalid or expired token");
+        }
+        return storage.read(pj.getFilePath());
     }
 }

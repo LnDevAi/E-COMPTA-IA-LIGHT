@@ -49,7 +49,7 @@ const Layout = ({ children }) => {
         { to: '/bilan', label: t('navigation.balanceSheet') },
         { to: '/compte-resultat', label: t('navigation.incomeStatement') },
         { to: '/notes-annexes', label: t('navigation.notes') },
-        { to: '/etats-financiers-ohada', label: t('navigation.ohadaFinancialStatements') },
+        { to: '/etats-financiers-audcif', label: t('navigation.ohadaFinancialStatements') },
       ]
     },
     {

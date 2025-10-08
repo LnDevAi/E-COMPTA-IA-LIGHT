@@ -23,10 +23,10 @@ public class Entreprise {
     private SystemeComptable systemeComptable;
 
     /**
-     * Pour l'espace OHADA, permet de distinguer le Système Normal et le Système Minimal de Trésorerie.
-     * null si non OHADA.
+     * Pour l'espace AUDCIF, permet de distinguer le Système Normal et le Système Minimal de Trésorerie.
+     * null si non AUDCIF.
      */
-    @Column(name = "type_systeme_ohada")
+    @Column(name = "type_systeme_audcif")
     @Enumerated(EnumType.STRING)
-    private TypeSystemeOhada typeSystemeOhada;
+    private TypeSystemeAudcif typeSystemeAudcif;
 }

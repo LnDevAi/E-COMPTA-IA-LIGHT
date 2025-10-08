@@ -35,7 +35,7 @@
     "generalLedger": "General Ledger",
     "balanceSheet": "Balance Sheet",
     "incomeStatement": "Income Statement",
-    "ohadaFinancialStatements": "OHADA Financial Statements",
+    "ohadaFinancialStatements": "AUDCIF Financial Statements",
     "notes": "Notes",
     "ged": "DMS",
     "logout": "Logout"
@@ -78,8 +78,8 @@
     }
   },
   "ohadaFinancialStatements": {
-    "title": "OHADA Financial Statements",
-    "subtitle": "Generation of financial statements in accordance with OHADA standards",
+    "title": "AUDCIF Financial Statements",
+    "subtitle": "Generation of financial statements in accordance with AUDCIF standards",
     "company": "Company",
     "selectCompany": "-- Select a company --",
     "fiscalYear": "Fiscal Year (e.g.: 2024)",

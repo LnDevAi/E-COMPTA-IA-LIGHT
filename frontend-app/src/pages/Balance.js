@@ -76,8 +76,8 @@ export default function Balance() {
         <label>
           Système comptable :
           <select value={systeme} onChange={e => setSysteme(e.target.value)} style={{ marginLeft: 8 }}>
-            <option value="NORMAL">OHADA Normal</option>
-            <option value="MINIMAL">OHADA Minimal</option>
+            <option value="NORMAL">AUDCIF Normal</option>
+            <option value="MINIMAL">AUDCIF Minimal</option>
           </select>
         </label>
         <label>
