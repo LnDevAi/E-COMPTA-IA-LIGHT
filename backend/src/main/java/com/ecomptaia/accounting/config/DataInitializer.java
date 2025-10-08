@@ -2,7 +2,7 @@
 package com.ecomptaia.accounting.config;
 
 import com.ecomptaia.accounting.entity.SystemeComptable;
-import com.ecomptaia.accounting.entity.TypeSystemeOhada;
+import com.ecomptaia.accounting.entity.TypeSystemeAudcif;
 import com.ecomptaia.accounting.entity.Entreprise;
 import com.ecomptaia.accounting.entity.CompteComptable;
 import com.ecomptaia.accounting.entity.Journal;
@@ -41,7 +41,7 @@ public class DataInitializer {
             entreprise.setNom("Entreprise Demo");
             entreprise.setPays("Cameroun");
             entreprise.setSystemeComptable(audcif);
-            entreprise.setTypeSystemeOhada(TypeSystemeOhada.NORMAL);
+            entreprise.setTypeSystemeAudcif(TypeSystemeAudcif.NORMAL);
             entreprise = entrepriseService.creerEntreprise(entreprise);
 
             // Initialisation du plan comptable AUDCIF (classes 1 à 7)

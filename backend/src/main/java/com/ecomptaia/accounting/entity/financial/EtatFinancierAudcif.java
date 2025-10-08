@@ -1,16 +1,14 @@
-
 package com.ecomptaia.accounting.entity.financial;
 
-import com.ecomptaia.accounting.entity.TypeSystemeOhada;
-
+import com.ecomptaia.accounting.entity.TypeSystemeAudcif;
 import com.ecomptaia.accounting.entity.Entreprise;
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "etats_financiers_ohada")
+@Table(name = "etats_financiers_audcif")
 @Data
-public class EtatFinancierOhada {
+public class EtatFinancierAudcif {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -21,13 +19,11 @@ public class EtatFinancierOhada {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TypeSystemeOhada typeSystemeOhada;
+    private TypeSystemeAudcif typeSystemeAudcif;
 
     @Column(nullable = false)
     private String exercice;
 
-
-    // Système Normal : Bilan, Compte de Résultat, Notes Annexes
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "bilan_id")
     private Bilan bilan;
@@ -40,8 +36,7 @@ public class EtatFinancierOhada {
     @JoinColumn(name = "note_annexe_id")
     private NoteAnnexe noteAnnexe;
 
-    // Système Minimal : Tableau de trésorerie
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "tableau_tresorerie_id")
-    private TableauTresorerieOhada tableauTresorerie;
+    private TableauTresorerieAudcif tableauTresorerie;
 }

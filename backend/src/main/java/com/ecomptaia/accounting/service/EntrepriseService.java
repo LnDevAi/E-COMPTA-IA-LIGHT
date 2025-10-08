@@ -16,7 +16,7 @@ public class EntrepriseService {
     private final EntrepriseRepository entrepriseRepository;
     private final PlanComptableService planComptableService;
 
-    // Service pour la génération des états financiers OHADA
+    // Service pour la génération des états financiers AUDCIF
     private final com.ecomptaia.accounting.service.financial.EtatFinancierOhadaService etatFinancierOhadaService;
 
     @Transactional
@@ -33,7 +33,7 @@ public class EntrepriseService {
     }
         /**
          * Automatisation de l'import du plan comptable lors de la création d'entreprise.
-         * Pour OHADA, le plan est unique mais les états financiers diffèrent selon le type (NORMAL/MINIMAL).
+         * Pour AUDCIF, le plan peut être unique et les états financiers diffèrent selon le type (NORMAL/MINIMAL).
          */
         @Transactional
         public Entreprise creerEntrepriseAutomatique(Entreprise entreprise) {
@@ -45,9 +45,9 @@ public class EntrepriseService {
                 if (comptesDefaut != null && !comptesDefaut.isEmpty()) {
                     planComptableService.importerPlanComptable(codeSysteme, comptesDefaut);
                 }
-                // Pour OHADA, gérer le type de système (NORMAL/MINIMAL)
-                if ("OHADA".equalsIgnoreCase(codeSysteme) && entreprise.getTypeSystemeOhada() != null) {
-                        // Génération automatique des états financiers OHADA selon le type
+                // Pour AUDCIF, gérer le type de système (NORMAL/MINIMAL)
+                if ("AUDCIF".equalsIgnoreCase(codeSysteme) && entreprise.getTypeSystemeAudcif() != null) {
+                        // Génération automatique des états financiers AUDCIF selon le type
                         etatFinancierOhadaService.genererEtatsPourEntreprise(saved, "2025");
                 }
             }

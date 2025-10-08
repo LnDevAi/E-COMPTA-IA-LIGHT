@@ -104,7 +104,7 @@ export default function EtatsFinanciersOhada() {
                   </MenuItem>
                   {entreprises.map(ent => (
                     <MenuItem key={ent.id} value={ent.id}>
-                      {ent.nom} - {ent.typeOhada || 'N/A'}
+                      {ent.nom} - {ent.typeAudcif || ent.typeOhada || 'N/A'}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -308,7 +308,7 @@ export default function EtatsFinanciersOhada() {
               Informations
             </Typography>
             <Box component="ul" sx={{ fontSize: '0.875rem' }}>
-              <li>Type d'entreprise: {selectedEntreprise?.typeOhada || 'N/A'}</li>
+              <li>Type d'entreprise: {selectedEntreprise?.typeAudcif || selectedEntreprise?.typeOhada || 'N/A'}</li>
               <li>Système comptable: AUDCIF</li>
               <li>{t('ohadaFinancialStatements.fiscalYear')}: {etats.exercice}</li>
               <li>Date de génération: {new Date().toLocaleDateString()}</li>
