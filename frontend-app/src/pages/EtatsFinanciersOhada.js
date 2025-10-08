@@ -60,7 +60,7 @@ export default function EtatsFinanciersOhada() {
     setLoading(true);
     setError('');
     try {
-      const response = await apiClient.post('/api/etats-financiers-ohada/generer', 
+      const response = await apiClient.post('/api/etats-financiers-audcif/generer', 
         selectedEntreprise,
         { params: { exercice: data.exercice } }
       );
@@ -78,7 +78,7 @@ export default function EtatsFinanciersOhada() {
   return (
     <Box>
       <Typography variant="h4" component="h1" gutterBottom>
-        {t('ohadaFinancialStatements.title')}
+        {t('ohadaFinancialStatements.title').replace('OHADA','AUDCIF')}
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
         {t('ohadaFinancialStatements.subtitle')}
@@ -152,7 +152,7 @@ export default function EtatsFinanciersOhada() {
             {t('ohadaFinancialStatements.fiscalYear')}: {etats.exercice} | Type: {etats.typeEtat || 'N/A'}
           </Typography>
 
-          {/* Bilan OHADA */}
+          {/* Bilan AUDCIF */}
           {etats.bilan && (
             <Paper sx={{ mb: 3 }}>
               <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 1.5 }}>
@@ -232,13 +232,11 @@ export default function EtatsFinanciersOhada() {
             </Paper>
           )}
 
-          {/* Compte de Résultat OHADA */}
+          {/* Compte de Résultat AUDCIF */}
           {etats.compteResultat && (
             <Paper sx={{ mb: 3 }}>
               <Box sx={{ bgcolor: 'success.main', color: 'white', p: 1.5 }}>
-                <Typography variant="h6">
-                  {t('ohadaFinancialStatements.incomeStatement')}
-                </Typography>
+                <Typography variant="h6">{t('ohadaFinancialStatements.incomeStatement')}</Typography>
               </Box>
               <Box sx={{ p: 2 }}>
                 <TableContainer>
@@ -311,7 +309,7 @@ export default function EtatsFinanciersOhada() {
             </Typography>
             <Box component="ul" sx={{ fontSize: '0.875rem' }}>
               <li>Type d'entreprise: {selectedEntreprise?.typeOhada || 'N/A'}</li>
-              <li>Système comptable: OHADA</li>
+              <li>Système comptable: AUDCIF</li>
               <li>{t('ohadaFinancialStatements.fiscalYear')}: {etats.exercice}</li>
               <li>Date de génération: {new Date().toLocaleDateString()}</li>
             </Box>

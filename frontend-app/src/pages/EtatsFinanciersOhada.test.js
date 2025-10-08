@@ -22,8 +22,8 @@ const renderWithProviders = (component) => {
 
 describe('EtatsFinanciersOhada', () => {
   const mockEntreprises = [
-    { id: '1', nom: 'Entreprise Test 1', typeOhada: 'SYSCOHADA' },
-    { id: '2', nom: 'Entreprise Test 2', typeOhada: 'SYSCOHADA' }
+    { id: '1', nom: 'Entreprise Test 1', typeOhada: 'AUDCIF' },
+    { id: '2', nom: 'Entreprise Test 2', typeOhada: 'AUDCIF' }
   ];
 
   beforeEach(() => {
@@ -35,7 +35,7 @@ describe('EtatsFinanciersOhada', () => {
     renderWithProviders(<EtatsFinanciersOhada />);
     
     await waitFor(() => {
-      expect(screen.getByText(/OHADA Financial Statements|États Financiers OHADA/i)).toBeInTheDocument();
+      expect(screen.getByText(/AUDCIF Financial Statements|États Financiers AUDCIF/i)).toBeInTheDocument();
     });
     
     expect(screen.getByLabelText(/Company|Entreprise/i)).toBeInTheDocument();
@@ -53,8 +53,8 @@ describe('EtatsFinanciersOhada', () => {
     fireEvent.mouseDown(companySelect);
 
     await waitFor(() => {
-      expect(screen.getByText('Entreprise Test 1 - SYSCOHADA')).toBeInTheDocument();
-      expect(screen.getByText('Entreprise Test 2 - SYSCOHADA')).toBeInTheDocument();
+      expect(screen.getByText('Entreprise Test 1 - AUDCIF')).toBeInTheDocument();
+      expect(screen.getByText('Entreprise Test 2 - AUDCIF')).toBeInTheDocument();
     });
   });
 
@@ -103,7 +103,7 @@ describe('EtatsFinanciersOhada', () => {
     fireEvent.mouseDown(companySelect);
     
     await waitFor(() => {
-      const option = screen.getByText('Entreprise Test 1 - SYSCOHADA');
+      const option = screen.getByText('Entreprise Test 1 - AUDCIF');
       fireEvent.click(option);
     }, { timeout: 5000 });
 
@@ -155,7 +155,7 @@ describe('EtatsFinanciersOhada', () => {
 
     const companySelect = screen.getByLabelText(/Company|Entreprise/i);
     fireEvent.mouseDown(companySelect);
-    fireEvent.click(screen.getByText('Entreprise Test 1 - SYSCOHADA'));
+    fireEvent.click(screen.getByText('Entreprise Test 1 - AUDCIF'));
 
     const yearInput = screen.getByLabelText(/Fiscal Year|Exercice/i);
     fireEvent.change(yearInput, { target: { value: '2024' } });

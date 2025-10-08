@@ -21,11 +21,10 @@ spring:
       hibernate:
         dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
 
-# Exemple : charger le plan OHADA par défaut
+# Exemple : charger le plan AUDCIF par défaut (désactivé pour éviter conflits FK)
   sql:
     init:
-      mode: always
-      data-locations: classpath:data-plan-ohada.sql,classpath:data-journaux.sql
+      mode: never
 
   messages:
     basename: messages

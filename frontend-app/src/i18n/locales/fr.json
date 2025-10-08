@@ -35,7 +35,7 @@
     "generalLedger": "Grand Livre",
     "balanceSheet": "Bilan",
     "incomeStatement": "Compte de Résultat",
-    "ohadaFinancialStatements": "États Financiers OHADA",
+    "ohadaFinancialStatements": "États Financiers AUDCIF",
     "notes": "Notes annexes",
     "ged": "GED",
     "logout": "Déconnexion"
@@ -78,8 +78,8 @@
     }
   },
   "ohadaFinancialStatements": {
-    "title": "États Financiers OHADA",
-    "subtitle": "Génération des états financiers conformes au référentiel OHADA",
+    "title": "États Financiers AUDCIF",
+    "subtitle": "Génération des états financiers conformes au référentiel AUDCIF",
     "company": "Entreprise",
     "selectCompany": "-- Sélectionner une entreprise --",
     "fiscalYear": "Exercice (ex: 2024)",

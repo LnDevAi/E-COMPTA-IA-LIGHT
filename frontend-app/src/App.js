@@ -153,7 +153,7 @@ function App() {
               }
             />
             <Route
-              path="/etats-financiers-ohada"
+              path="/etats-financiers-audcif"
               element={
                 <Layout>
                   <EtatsFinanciersOhada />

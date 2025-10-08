@@ -35,7 +35,7 @@
     "generalLedger": "General Ledger",
     "balanceSheet": "Balance Sheet",
     "incomeStatement": "Income Statement",
-    "ohadaFinancialStatements": "OHADA Financial Statements",
+    "ohadaFinancialStatements": "AUDCIF Financial Statements",
     "notes": "Notes",
     "ged": "DMS",
     "logout": "Logout"

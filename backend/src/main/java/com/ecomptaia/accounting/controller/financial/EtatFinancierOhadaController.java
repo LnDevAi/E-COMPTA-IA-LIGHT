@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/etats-financiers-ohada")
+@RequestMapping({"/api/etats-financiers-audcif","/api/etats-financiers-ohada"})
 @RequiredArgsConstructor
 public class EtatFinancierOhadaController {
     private final EtatFinancierOhadaService etatFinancierOhadaService;
