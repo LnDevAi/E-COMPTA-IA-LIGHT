@@ -22,6 +22,7 @@ import com.ecomptaia.accounting.entity.LigneEcriture;
 import com.ecomptaia.accounting.storage.validators.UploadValidator;
 import com.ecomptaia.accounting.storage.validators.AntivirusService;
 import com.ecomptaia.accounting.security.SignedUrlService;
+import com.ecomptaia.accounting.audit.AuditService;
 
 @Service
 public class SycebnlService {
@@ -49,6 +50,8 @@ public class SycebnlService {
     private SignedUrlService signedUrlService;
     @Autowired
     private JournalSelectionService journalSelectionService;
+    @Autowired
+    private AuditService auditService;
 
     // Mapping DTO -> Entity
     private SycebnlOrganization toEntity(SycebnlOrganizationDto dto) {
@@ -142,6 +145,7 @@ public class SycebnlService {
         pj.setSha256(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes)));
         pj.setStatus("UPLOADED");
         pieceRepository.save(pj);
+        auditService.log("UPLOAD_PIECE", "id=" + pj.getId() + ", name=" + libellePJ);
         return pj;
     }
 
@@ -152,6 +156,7 @@ public class SycebnlService {
         pj.setOcrResult(ocrService.extractText(content, pj.getFilePath()));
         pj.setStatus("OCR_DONE");
         pieceRepository.save(pj);
+        auditService.log("OCR_DONE", "id=" + pj.getId());
         return pj;
     }
 
@@ -163,6 +168,7 @@ public class SycebnlService {
         pj.setIaResult("Propositions: " + lines.size());
         pj.setStatus("IA_DONE");
         pieceRepository.save(pj);
+        auditService.log("IA_DONE", "id=" + pj.getId());
         return pj;
     }
 
@@ -205,6 +211,7 @@ public class SycebnlService {
         e = ecritureRepository.save(e);
         pj.setStatus("ECRITURE_GENERATED");
         pieceRepository.save(pj);
+        auditService.log("ECRITURE_GENERATED", "pieceId=" + pj.getId() + ", ecritureId=" + e.getId());
         return e;
     }
 
