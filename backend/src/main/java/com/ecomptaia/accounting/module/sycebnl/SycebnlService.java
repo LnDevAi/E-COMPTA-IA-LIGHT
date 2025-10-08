@@ -47,6 +47,8 @@ public class SycebnlService {
     private AntivirusService antivirusService;
     @Autowired
     private SignedUrlService signedUrlService;
+    @Autowired
+    private JournalSelectionService journalSelectionService;
 
     // Mapping DTO -> Entity
     private SycebnlOrganization toEntity(SycebnlOrganizationDto dto) {
@@ -188,7 +190,7 @@ public class SycebnlService {
         EcritureComptable e = new EcritureComptable();
         e.setLibelle("Pièce " + pj.getId() + " - " + pj.getLibellePJ());
         e.setDateEcriture(java.time.LocalDate.now());
-        journalRepository.findByCode("OD").ifPresent(e::setJournal);
+        journalSelectionService.select(pj.getLibellePJ(), pj.getTypePJ(), pj.getOcrResult()).ifPresent(e::setJournal);
         for (var pl : lines) {
             var optCompte = compteRepository.findByNumero(pl.compteNumero);
             if (optCompte.isEmpty()) continue;
