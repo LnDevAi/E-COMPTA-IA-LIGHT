@@ -1,10 +1,12 @@
 # render.yaml
 services:
+  # Backend Service
   - type: web
     name: ecompta-backend
     env: docker
     dockerfilePath: ./Dockerfile.backend
     plan: free
+    healthCheckPath: /actuator/health
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
@@ -33,6 +35,7 @@ services:
       - key: SPRING_JPA_DATABASE_PLATFORM
         value: org.hibernate.dialect.PostgreSQLDialect
     
+  # Frontend Service  
   - type: web
     name: ecompta-frontend
     env: docker
@@ -42,7 +45,7 @@ services:
     envVars:
       - key: REACT_APP_API_URL
         value: https://ecompta-backend.onrender.com
-    
+
 databases:
   - name: postgres
     databaseName: ecomptaia
